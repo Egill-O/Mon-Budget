@@ -290,13 +290,47 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
 
 <script>
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=1352871861&single=true&output=csv';
+const CSV_DETTES='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=848987459&single=true&output=csv';
 
-// Montants initiaux connus (base de référence)
-const DETTE_INITIALS={
-  'BMCE Maroc':9007,'Carte Desjardins':1999,'Hicham':1680,
-  'Rhofrane':3000,'Joris':485,'Larissa':225,'Charlemagne':300,
-  'Thomas':146,'Victorine':146
-};
+// Montants initiaux chargés dynamiquement depuis Google Sheets (onglet Dettes)
+let DETTE_INITIALS={};
+let DETTE_DISPLAY_NAMES={'Credit Conso BMCE':'Crédit BMCE Maroc'};
+let DETTE_NOTES={};
+let DETTE_DATES={};
+
+function normalizeDetteName(lib, cat2){
+  if(cat2==='51.Credit Conso') return 'Credit Conso BMCE';
+  return lib;
+}
+
+function loadDettesRef(callback){
+  Papa.parse(CSV_DETTES+'&t='+Date.now(),{
+    download:true, header:true, skipEmptyLines:true,
+    complete:function(results){
+      DETTE_INITIALS={};
+      results.data.forEach(r=>{
+        const k=Object.keys(r);
+        const nom=(r[k[0]]||r['Nom']||'').trim();
+        const montant=parseAmt(r[k[1]]||r['Montant_Initial']||'0');
+        const date=(r[k[2]]||r['Date_Debut']||'').trim();
+        const notes=(r[k[3]]||r['Notes']||'').trim();
+        if(nom&&montant>0){
+          DETTE_INITIALS[nom]=montant;
+          DETTE_NOTES[nom]=notes;
+          DETTE_DATES[nom]=date;
+        }
+      });
+      console.log('Dettes ref chargées:', Object.keys(DETTE_INITIALS));
+      callback();
+    },
+    error:function(){
+      console.warn('Erreur chargement dettes ref, utilisation valeurs par défaut');
+      // Valeurs de secours
+      DETTE_INITIALS={'Credit Conso BMCE':9007,'Carte Desjardins':1999,'Hicham':1680,'Rhofrane':3000,'Joris':485,'Larissa':225,'Charlemagne':200,'Retour Thomas':146,'Victorine':146};
+      callback();
+    }
+  });
+}
 
 const BUDGETS=[
   {cat:'21.Loyer',label:'Loyer',budget:877,icon:'🏠'},
@@ -320,7 +354,7 @@ const BUDGET_TOTAL=BUDGETS.reduce((s,b)=>s+b.budget,0);
 const PLAN=[
   {mois:'Juin 2026',classe:'highlight-row',
    evenements:['💰 Retour impôt fédéral : +3 100 $','💸 BMCE : −410 $'],
-   dettes:['✅ Carte Desjardins soldée (−1 999 $)','✅ Charlemagne soldé (−300 $)','💰 Coussin : +500 $','📋 Résidence permanente : ~400 $'],
+   dettes:['✅ Carte Desjardins soldée (−1 999 $)','✅ Charlemagne soldé (−200 $)','💰 Coussin : +500 $','📋 Résidence permanente : ~400 $'],
    entrees:3100,solde:7342},
   {mois:'Juil 2026',classe:'',
    evenements:['💸 BMCE : −410 $','⏳ Attente tontines'],
@@ -431,15 +465,21 @@ function calcDettes(rows, filter){
   // Grouper par bénéficiaire (libellé)
   const parBenef = {};
   detteRows.forEach(r => {
-    const nom = r.lib || r.lieu || r.cat2;
+    const nom = normalizeDetteName(r.lib || r.lieu || r.cat2, r.cat2);
     if(!parBenef[nom]) parBenef[nom] = {nom, cat2:r.cat2, rows:[], totalPaye:0};
+    // Update cat2 if credit conso
+    if(r.cat2==='51.Credit Conso') parBenef[nom].cat2='51.Credit Conso';
     parBenef[nom].rows.push(r);
     parBenef[nom].totalPaye += r.amt;
   });
 
   // Ajouter les dettes connues même si pas encore dans le Sheets
+  const DETTE_CAT2={
+    'Credit Conso BMCE':'51.Credit Conso',
+    'Carte Desjardins':'52.Autre Dette',
+  };
   Object.keys(DETTE_INITIALS).forEach(nom => {
-    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:'52.Autre Dette', rows:[], totalPaye:0};
+    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:DETTE_CAT2[nom]||'52.Autre Dette', rows:[], totalPaye:0};
   });
 
   // Calcul pour chaque dette
@@ -471,7 +511,9 @@ function calcDettes(rows, filter){
       restant,
       pct,
       soldee: restant <= 0,
-      txDisplay
+      txDisplay,
+      notes: DETTE_NOTES[d.nom]||'',
+      dateDebut: DETTE_DATES[d.nom]||''
     };
   });
 
@@ -557,7 +599,7 @@ function renderDettes(){
   let html='';
   const sorted = Object.values(dettes).sort((a,b)=>b.restant-a.restant);
   sorted.forEach(d=>{
-    const isBMCE = d.nom.includes('BMCE')||d.nom.includes('credit conso');
+    const isBMCE = d.nom.includes('BMCE')||d.cat2==='51.Credit Conso';
     const cardClass = d.soldee?'dette-card soldee':isBMCE?'dette-card urgente':'dette-card';
     const badge = d.soldee?'<span class="badge badge-soldee">✅ Soldée</span>':isBMCE?'<span class="badge badge-urgente">🏦 Crédit</span>':'<span class="badge badge-normal">👤 Personnel</span>';
     const barColor = d.soldee?'#1D9E75':isBMCE?'#534AB7':'#D85A30';
@@ -572,11 +614,13 @@ function renderDettes(){
 
     html+=`<div class="${cardClass}">
       <div class="dette-header">
-        <div class="dette-name">${isBMCE?'🏦':'👤'} ${d.nom}</div>
+        <div class="dette-name">${isBMCE?'🏦':'👤'} ${DETTE_DISPLAY_NAMES[d.nom]||d.nom}</div>
         ${badge}
       </div>
       <div class="dette-montant-restant" style="color:${d.soldee?'#3B6D11':'#A32D2D'}">${d.soldee?'Soldée ✅':fmt(d.restant)}</div>
-      <div style="font-size:12px;color:#888780;margin-bottom:10px">${d.soldee?'Remboursement complet':'restant à rembourser'}</div>
+      <div style="font-size:12px;color:#888780;margin-bottom:6px">${d.soldee?'Remboursement complet ✅':'restant à rembourser'}</div>
+      ${d.notes?`<div style="font-size:11px;color:#534AB7;margin-bottom:8px;background:#F5F4FF;padding:4px 8px;border-radius:6px">📝 ${d.notes}</div>`:''}
+      ${d.dateDebut?`<div style="font-size:11px;color:#888780;margin-bottom:8px">📅 Depuis : ${d.dateDebut}</div>`:''}
       <div class="dette-stats">
         <div class="dette-stat-item">
           <div class="dette-stat-val" style="color:#534AB7">${fmt(d.initial)}</div>
@@ -607,9 +651,9 @@ function renderDettes(){
   let rhtml='';
   sorted.forEach(d=>{
     const barW=Math.min(100,d.pct);
-    const barColor=d.soldee?'#1D9E75':d.nom.includes('BMCE')?'#534AB7':'#D85A30';
+    const barColor=d.soldee?'#1D9E75':(d.nom.includes('BMCE')||d.cat2==='51.Credit Conso')?'#534AB7':'#D85A30';
     rhtml+=`<tr>
-      <td style="font-weight:600">${d.nom}</td>
+      <td style="font-weight:600">${DETTE_DISPLAY_NAMES[d.nom]||d.nom}</td>
       <td style="text-align:right;color:#534AB7">${fmt(d.initial)}</td>
       <td style="text-align:right;color:#3B6D11">${fmt(d.payeTout)}</td>
       <td style="text-align:right;color:${d.soldee?'#3B6D11':'#A32D2D'};font-weight:600">${fmt(d.restant)}</td>
@@ -681,8 +725,7 @@ function renderAll(){
   renderDetail(detailMonth);
 }
 
-function loadData(){
-  setStatus('loading','Chargement...');
+function loadBDD(callback){
   Papa.parse(CSV_URL+'&t='+Date.now(),{
     download:true,header:true,skipEmptyLines:true,
     complete:function(results){
@@ -699,16 +742,28 @@ function loadData(){
             type:(r[k[6]]||r[k[5]]||'').trim()
           };
         }).filter(r=>r.date&&r.amt>0&&(r.type==='In'||r.type==='Out'));
-        if(!allRows.length){setStatus('err','Aucune donnée');return;}
-        buildMonths(allRows);
-        if(MK.length>0)budgetMonth=MK[MK.length-1];
-        const now=new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-        setStatus('ok',allRows.length+' lignes · '+now);
-        document.getElementById('last-update').textContent='Mis à jour à '+now;
-        renderAll();
-      }catch(e){console.error(e);setStatus('err','Erreur parsing');}
+        callback(null);
+      }catch(e){callback(e);}
     },
-    error:()=>setStatus('err','Connexion impossible')
+    error:()=>callback(new Error('Connexion BDD impossible'))
+  });
+}
+
+function loadData(){
+  setStatus('loading','Chargement BDD...');
+  // Charger d'abord les dettes de référence, puis la BDD
+  loadDettesRef(function(){
+    setStatus('loading','Chargement transactions...');
+    loadBDD(function(err){
+      if(err){setStatus('err','Connexion impossible');return;}
+      if(!allRows.length){setStatus('err','Aucune donnée');return;}
+      buildMonths(allRows);
+      if(MK.length>0)budgetMonth=MK[MK.length-1];
+      const now=new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+      setStatus('ok',allRows.length+' lignes · '+now);
+      document.getElementById('last-update').textContent='Mis à jour à '+now;
+      renderAll();
+    });
   });
 }
 
