@@ -459,21 +459,17 @@ function calcByCat2(rows,filter){
 
 // ── CALCUL DETTES DYNAMIQUE depuis le Sheets ──
 function calcDettes(rows, filter){
-  // Toutes les transactions de dette (cat1 = 05.Dette), tout temps
   const detteRows = rows.filter(r => r.cat1 === '05.Dette' && r.type === 'Out');
 
-  // Grouper par bénéficiaire (libellé)
   const parBenef = {};
   detteRows.forEach(r => {
     const nom = normalizeDetteName(r.lib || r.lieu || r.cat2, r.cat2);
     if(!parBenef[nom]) parBenef[nom] = {nom, cat2:r.cat2, rows:[], totalPaye:0};
-    // Update cat2 if credit conso
     if(r.cat2==='51.Credit Conso') parBenef[nom].cat2='51.Credit Conso';
     parBenef[nom].rows.push(r);
     parBenef[nom].totalPaye += r.amt;
   });
 
-  // Ajouter les dettes connues même si pas encore dans le Sheets
   const DETTE_CAT2={
     'Credit Conso BMCE':'51.Credit Conso',
     'Carte Desjardins':'52.Autre Dette',
@@ -482,24 +478,43 @@ function calcDettes(rows, filter){
     if(!parBenef[nom]) parBenef[nom] = {nom, cat2:DETTE_CAT2[nom]||'52.Autre Dette', rows:[], totalPaye:0};
   });
 
-  // Calcul pour chaque dette
+  // Mois courant affiché (pour la logique de disparition)
+  const moisAffiche = filter || (MK.length>0 ? MK[MK.length-1] : null);
+
   const result = {};
   Object.values(parBenef).forEach(d => {
     const initial = DETTE_INITIALS[d.nom] || d.totalPaye;
     const payeTout = d.totalPaye;
 
-    // Payé sur le mois filtré
+    // Date du dernier paiement (= mois où la dette a été soldée)
+    const rowsTries = [...d.rows].sort((a,b)=>a.date.localeCompare(b.date));
+    const dernierPaiement = rowsTries.length>0 ? rowsTries[rowsTries.length-1] : null;
+    const mkDernierPaiement = dernierPaiement ? getMK(dernierPaiement.date) : null;
+
+    const restant = Math.max(0, initial - payeTout);
+    const soldee = restant <= 0 && payeTout > 0;
+
+    // Logique disparition : si soldée, calculer le mois suivant le dernier paiement
+    let mkDisparition = null;
+    if(soldee && mkDernierPaiement) {
+      const [y, m] = mkDernierPaiement.split('-').map(Number);
+      const nextM = m === 12 ? 1 : m + 1;
+      const nextY = m === 12 ? y + 1 : y;
+      mkDisparition = nextY + '-' + String(nextM).padStart(2,'0');
+    }
+
+    // Cacher la dette si on affiche un mois >= mois de disparition
+    const cacherDette = soldee && mkDisparition && moisAffiche && moisAffiche >= mkDisparition;
+
     let payeMois = 0;
     if(filter) {
       d.rows.forEach(r => { if(getMK(r.date)===filter) payeMois += r.amt; });
     }
 
-    // Transactions du mois ou toutes
     const txDisplay = filter
       ? d.rows.filter(r => getMK(r.date)===filter)
-      : d.rows.slice(-5); // 5 dernières
+      : d.rows.slice(-5);
 
-    const restant = Math.max(0, initial - payeTout);
     const pct = initial > 0 ? Math.min(100, Math.round(payeTout/initial*100)) : 100;
 
     result[d.nom] = {
@@ -510,7 +525,10 @@ function calcDettes(rows, filter){
       payeMois,
       restant,
       pct,
-      soldee: restant <= 0,
+      soldee,
+      cacherDette,  // true = ne pas afficher dans les cartes actives
+      mkDisparition,
+      mkDernierPaiement,
       txDisplay,
       notes: DETTE_NOTES[d.nom]||'',
       dateDebut: DETTE_DATES[d.nom]||''
@@ -595,9 +613,21 @@ function renderDettes(){
     <div class="mcard"><div class="mlabel">Payé ce mois</div><div class="mval b">${fmt(detteMonth?payeMoisTotal:0)}</div><div class="msub">${lbl}</div></div>
     <div class="mcard"><div class="mlabel">Dettes soldées</div><div class="mval p">${nbSoldees} / ${Object.keys(dettes).length}</div><div class="msub">sur le total</div></div>`;
 
-  // Cartes
+  // Cartes — on sépare actives et soldées/cachées
   let html='';
-  const sorted = Object.values(dettes).sort((a,b)=>b.restant-a.restant);
+  const allDettes = Object.values(dettes).sort((a,b)=>b.restant-a.restant);
+  const dettesActives = allDettes.filter(d=>!d.cacherDette);
+  const dettesSoldees = allDettes.filter(d=>d.cacherDette);
+
+  // Message si des dettes ont disparu
+  if(dettesSoldees.length>0){
+    html+=`<div style="background:#EAF3DE;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#3B6D11;display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">✅</span>
+      <span><strong>${dettesSoldees.map(d=>DETTE_DISPLAY_NAMES[d.nom]||d.nom).join(', ')}</strong> — soldée(s) et retirée(s) de la liste active.</span>
+    </div>`;
+  }
+
+  const sorted = dettesActives;
   sorted.forEach(d=>{
     const isBMCE = d.nom.includes('BMCE')||d.cat2==='51.Credit Conso';
     const cardClass = d.soldee?'dette-card soldee':isBMCE?'dette-card urgente':'dette-card';
