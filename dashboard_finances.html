@@ -22,7 +22,7 @@ body{font-family:Arial,sans-serif;background:#F0EFF8;color:#2C2C2A;min-height:10
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .btn{padding:7px 14px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:12px;font-family:Arial}
 .btn:hover{background:rgba(255,255,255,.2)}
-.nav{background:#fff;border-bottom:1px solid #E8E6FA;padding:0 20px;display:flex;gap:0;overflow-x:auto}
+.nav{background:#fff;border-bottom:1px solid #E8E6FA;padding:0 20px;display:flex;overflow-x:auto}
 .nav-btn{padding:12px 16px;font-size:13px;border:none;background:none;cursor:pointer;color:#888780;border-bottom:2px solid transparent;font-family:Arial;white-space:nowrap}
 .nav-btn.act{color:#2D3250;border-bottom-color:#534AB7;font-weight:600}
 .container{max-width:1150px;margin:0 auto;padding:20px 16px}
@@ -51,6 +51,7 @@ tr:last-child td{border-bottom:none}
 .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
 .bar-bg{background:#F1EFE8;border-radius:4px;height:8px;margin-top:4px;overflow:hidden}
 .bar-fill{height:8px;border-radius:4px;transition:width .3s}
+/* BUDGET */
 .budget-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
 @media(max-width:650px){.budget-grid{grid-template-columns:1fr}}
 .bcard{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E6FA}
@@ -71,28 +72,35 @@ tr:last-child td{border-bottom:none}
 .alert-icon{font-size:18px;flex-shrink:0}
 .alert-text{font-size:13px;line-height:1.5}
 .alert-text strong{display:block;margin-bottom:2px}
-
-/* ── DETTES ── */
+/* DETTES */
 .dette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
 @media(max-width:650px){.dette-grid{grid-template-columns:1fr}}
-.dette-card{border-radius:14px;padding:18px;border:1.5px solid #E8E6FA;background:#fff;position:relative;overflow:hidden}
-.dette-card.soldee{opacity:.55;border-style:dashed}
-.dette-card.urgente{border-color:#A32D2D}
-.dette-card.tontine{border-color:#1D9E75}
-.dette-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.dette-name{font-size:14px;font-weight:700;color:#2C2C2A}
-.dette-type{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
-.dette-montant{font-size:26px;font-weight:700;margin-bottom:4px}
-.dette-sub{font-size:12px;color:#888780;margin-bottom:12px}
-.dette-bar-bg{background:#F1EFE8;border-radius:6px;height:8px;overflow:hidden;margin-bottom:8px}
-.dette-bar-fill{height:8px;border-radius:6px}
-.dette-footer{display:flex;justify-content:space-between;font-size:11px;color:#888780}
-.badge-soldee{background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
-.badge-urgente{background:#FCEBEB;color:#A32D2D;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
-.badge-tontine{background:#EAF3DE;color:#0F6E56;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
-.badge-normal{background:#E8E6FA;color:#534AB7;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
-
-/* ── PLAN ── */
+.dette-card{border-radius:14px;padding:18px;border:1.5px solid #E8E6FA;background:#fff}
+.dette-card.soldee{border-color:#1D9E75;background:#F8FFF4}
+.dette-card.urgente{border-color:#A32D2D;background:#FFF8F8}
+.dette-card.tontine{border-color:#1D9E75;background:#F0FFF8}
+.dette-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.dette-name{font-size:14px;font-weight:700}
+.dette-montant-restant{font-size:28px;font-weight:700;margin-bottom:2px}
+.dette-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;background:#F5F4FF;border-radius:8px;padding:10px}
+.dette-stat-item{text-align:center}
+.dette-stat-val{font-size:14px;font-weight:700}
+.dette-stat-lbl{font-size:10px;color:#888780;margin-top:2px}
+.dette-bar-wrap{margin:10px 0 6px}
+.dette-bar-bg{background:#F1EFE8;border-radius:6px;height:10px;overflow:hidden}
+.dette-bar-fill{height:10px;border-radius:6px;transition:width .5s}
+.dette-footer{font-size:11px;color:#888780;margin-top:6px}
+.dette-tx{margin-top:12px;border-top:1px solid #F1EFE8;padding-top:10px}
+.dette-tx-title{font-size:11px;font-weight:600;color:#888780;text-transform:uppercase;margin-bottom:6px}
+.dette-tx-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #F5F4FF}
+.dette-tx-row:last-child{border:none}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+.badge-soldee{background:#EAF3DE;color:#3B6D11}
+.badge-urgente{background:#FCEBEB;color:#A32D2D}
+.badge-tontine{background:#EAF3DE;color:#0F6E56}
+.badge-normal{background:#E8E6FA;color:#534AB7}
+.badge-progress{background:#FAEEDA;color:#854F0B}
+/* PLAN */
 .plan-table{width:100%;border-collapse:collapse;font-size:12px}
 .plan-table th{font-size:11px;font-weight:600;color:#888780;padding:8px 10px;border-bottom:2px solid #E8E6FA;text-align:left;background:#F5F4FF}
 .plan-table td{padding:8px 10px;border-bottom:1px solid #F1EFE8;vertical-align:top}
@@ -103,12 +111,8 @@ tr:last-child td{border-bottom:none}
 .evt-paiement{background:#FCEBEB;color:#A32D2D}
 .evt-dette{background:#FAEEDA;color:#854F0B}
 .evt-tontine{background:#E8E6FA;color:#534AB7}
-.evt-libre{background:#F1EFE8;color:#5F5E5A}
-.plan-solde{font-weight:700;text-align:right}
-.plan-solde.pos{color:#3B6D11}.plan-solde.neg{color:#A32D2D}
 .highlight-row{background:#FFFBEA}
 .liberation-row{background:#EAF3DE}
-
 footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
 </style>
 </head>
@@ -128,20 +132,16 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
 <div class="nav">
   <button class="nav-btn act" onclick="showTab('overview',this)">📈 Vue générale</button>
   <button class="nav-btn" onclick="showTab('budget',this)">🎯 Budget</button>
-  <button class="nav-btn" onclick="showTab('dettes',this)">💳 Dettes & Plan</button>
+  <button class="nav-btn" onclick="showTab('dettes',this)">💳 Dettes</button>
+  <button class="nav-btn" onclick="showTab('plan',this)">🗓️ Plan 2026-2027</button>
   <button class="nav-btn" onclick="showTab('detail',this)">📋 Détail</button>
 </div>
 
-<!-- ══ TAB 1 : VUE GÉNÉRALE ══ -->
+<!-- TAB 1 : VUE GÉNÉRALE -->
 <div class="tab act" id="tab-overview">
 <div class="container">
   <div class="months" id="mrow"></div>
-  <div class="metrics" id="metrics">
-    <div class="mcard"><div class="mlabel">Revenus</div><div class="mval">—</div></div>
-    <div class="mcard"><div class="mlabel">Sorties</div><div class="mval">—</div></div>
-    <div class="mcard"><div class="mlabel">Épargne</div><div class="mval">—</div></div>
-    <div class="mcard"><div class="mlabel">Solde</div><div class="mval">—</div></div>
-  </div>
+  <div class="metrics" id="metrics"></div>
   <div class="card">
     <div class="ctitle">📊 Dépenses mensuelles par catégorie</div>
     <div class="leg" id="leg1"></div>
@@ -161,7 +161,7 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
 </div>
 </div>
 
-<!-- ══ TAB 2 : BUDGET ══ -->
+<!-- TAB 2 : BUDGET -->
 <div class="tab" id="tab-budget">
 <div class="container">
   <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
@@ -169,7 +169,7 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
       <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px">Budget prévisionnel mensuel</div>
       <div style="font-size:12px;color:#888780" id="budget-subtitle">—</div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;font-size:11px;flex-wrap:wrap">
+    <div style="display:flex;gap:10px;font-size:11px;flex-wrap:wrap">
       <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#1D9E75;border-radius:50%;display:inline-block"></span>OK</span>
       <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#EF9F27;border-radius:50%;display:inline-block"></span>Attention</span>
       <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#A32D2D;border-radius:50%;display:inline-block"></span>Dépassé</span>
@@ -177,102 +177,111 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
   </div>
   <div class="months" id="budget-mrow"></div>
   <div class="budget-grid" id="budget-grid"></div>
-  <div class="card">
-    <div class="ctitle">⚡ Alertes & conseils</div>
-    <div id="alerts-body"></div>
-  </div>
+  <div class="card"><div class="ctitle">⚡ Alertes</div><div id="alerts-body"></div></div>
   <div class="card">
     <div class="ctitle">📊 Tableau budget vs réel</div>
+    <table><thead><tr>
+      <th style="width:30%">Catégorie</th>
+      <th style="width:20%;text-align:right">Budget</th>
+      <th style="width:20%;text-align:right">Réel</th>
+      <th style="width:15%;text-align:right">Écart</th>
+      <th style="width:15%;text-align:center">Statut</th>
+    </tr></thead><tbody id="budget-table"></tbody></table>
+  </div>
+</div>
+</div>
+
+<!-- TAB 3 : DETTES -->
+<div class="tab" id="tab-dettes">
+<div class="container">
+  <div style="margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px">Suivi des dettes</div>
+    <div style="font-size:12px;color:#888780" id="dette-subtitle">Données calculées depuis ton Google Sheets</div>
+  </div>
+  <div class="months" id="dette-mrow"></div>
+  <!-- KPIs -->
+  <div class="metrics" id="dette-kpis"></div>
+  <!-- Cartes dettes dynamiques -->
+  <div class="dette-grid" id="dette-grid"></div>
+  <!-- Tableau récap -->
+  <div class="card">
+    <div class="ctitle">📋 Récapitulatif toutes dettes</div>
     <table>
       <thead><tr>
-        <th style="width:30%">Catégorie</th>
-        <th style="width:20%;text-align:right">Budget</th>
-        <th style="width:20%;text-align:right">Réel</th>
-        <th style="width:15%;text-align:right">Écart</th>
+        <th style="width:20%">Dette</th>
+        <th style="width:15%;text-align:right">Montant initial</th>
+        <th style="width:15%;text-align:right">Remboursé</th>
+        <th style="width:15%;text-align:right">Restant</th>
+        <th style="width:20%">Progression</th>
         <th style="width:15%;text-align:center">Statut</th>
       </tr></thead>
-      <tbody id="budget-table"></tbody>
+      <tbody id="dette-recap"></tbody>
     </table>
   </div>
 </div>
 </div>
 
-<!-- ══ TAB 3 : DETTES & PLAN ══ -->
-<div class="tab" id="tab-dettes">
+<!-- TAB 4 : PLAN -->
+<div class="tab" id="tab-plan">
 <div class="container">
-
-  <!-- KPIs dettes -->
-  <div class="metrics" id="dette-metrics" style="margin-bottom:20px">
-    <div class="mcard"><div class="mlabel">Total dettes</div><div class="mval r" id="d-total">—</div><div class="msub">mai 2026</div></div>
-    <div class="mcard"><div class="mlabel">Fin prévue</div><div class="mval" style="font-size:16px;color:#534AB7">Août 2027</div><div class="msub">dernière dette</div></div>
-    <div class="mcard"><div class="mlabel">Libération sept. 26</div><div class="mval g">5 700 $</div><div class="msub">tontines B1+B3</div></div>
-    <div class="mcard"><div class="mlabel">Retour impôt</div><div class="mval b">3 100 $</div><div class="msub">fédéral</div></div>
+  <div style="margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px">🗓️ Plan de remboursement — Juin 2026 → Août 2027</div>
+    <div style="font-size:12px;color:#888780">Revenu moyen ~2 700 $/mois · Charges fixes ~1 200 $ · Disponible ~1 500 $/mois</div>
   </div>
-
-  <!-- Cartes dettes -->
-  <div class="ctitle" style="margin-bottom:12px">💳 État de chaque dette</div>
-  <div class="dette-grid" id="dette-grid"></div>
-
-  <!-- Plan de remboursement -->
+  <div class="metrics" style="margin-bottom:20px">
+    <div class="mcard"><div class="mlabel">Total dettes mai 26</div><div class="mval r">~9 385 $</div><div class="msub">toutes dettes</div></div>
+    <div class="mcard"><div class="mlabel">Retour impôt fédéral</div><div class="mval b">3 100 $</div><div class="msub">prévu juin 2026</div></div>
+    <div class="mcard"><div class="mlabel">Tontines sept. 26</div><div class="mval g">5 700 $</div><div class="msub">B3: 2 300 $ + B1: 3 400 $</div></div>
+    <div class="mcard"><div class="mlabel">Fin de toutes dettes</div><div class="mval p" style="font-size:16px">Août 2027</div><div class="msub">BMCE dernière échéance</div></div>
+  </div>
   <div class="card">
-    <div class="ctitle">🗓️ Plan de remboursement — Juin 2026 → Août 2027</div>
-    <div style="font-size:12px;color:#888780;margin-bottom:14px">Basé sur ton revenu mensuel moyen ~2 700 $ · charges fixes ~1 200 $ · reste disponible ~1 500 $/mois</div>
+    <div class="ctitle">📅 Plan mois par mois</div>
     <div style="overflow-x:auto">
     <table class="plan-table">
       <thead><tr>
-        <th style="width:10%">Mois</th>
-        <th style="width:30%">Événements / Actions</th>
-        <th style="width:30%">Dettes impactées</th>
+        <th style="width:10%;min-width:90px">Mois</th>
+        <th style="width:32%">Événements & actions</th>
+        <th style="width:28%">Impact sur les dettes</th>
         <th style="width:15%;text-align:right">Entrées except.</th>
-        <th style="width:15%;text-align:right">Solde dettes restant</th>
+        <th style="width:15%;text-align:right">Dettes restantes</th>
       </tr></thead>
       <tbody id="plan-body"></tbody>
     </table>
     </div>
   </div>
-
-  <!-- Légende -->
   <div class="card" style="padding:14px 20px">
     <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px">
-      <span class="evt-rentree plan-evt">💰 Rentrée d'argent</span>
-      <span class="evt-paiement plan-evt">💸 Paiement BMCE</span>
-      <span class="evt-dette plan-evt">✅ Dette soldée</span>
-      <span class="evt-tontine plan-evt">🎯 Tontine reçue</span>
-      <span class="evt-libre plan-evt">📉 Remb. progressif</span>
+      <span class="plan-evt evt-rentree">💰 Rentrée d'argent</span>
+      <span class="plan-evt evt-paiement">💸 Paiement BMCE</span>
+      <span class="plan-evt evt-dette">✅ Dette soldée</span>
+      <span class="plan-evt evt-tontine">🎯 Tontine reçue</span>
     </div>
   </div>
-
 </div>
 </div>
 
-<!-- ══ TAB 4 : DÉTAIL ══ -->
+<!-- TAB 5 : DÉTAIL -->
 <div class="tab" id="tab-detail">
 <div class="container">
   <div class="months" id="detail-mrow"></div>
   <div class="card">
     <div class="ctitle" id="det-title">📋 Détail par sous-catégorie</div>
-    <table>
-      <thead><tr>
-        <th style="width:36%">Sous-catégorie</th>
-        <th style="width:20%;text-align:right">Total</th>
-        <th style="width:12%;text-align:right">%</th>
-        <th style="width:32%">Part</th>
-      </tr></thead>
-      <tbody id="det-body"><tr><td colspan="4" style="text-align:center;padding:2rem;color:#B4B2A9">Chargement...</td></tr></tbody>
-    </table>
+    <table><thead><tr>
+      <th style="width:36%">Sous-catégorie</th>
+      <th style="width:20%;text-align:right">Total</th>
+      <th style="width:12%;text-align:right">%</th>
+      <th style="width:32%">Part</th>
+    </tr></thead><tbody id="det-body"></tbody></table>
   </div>
   <div class="card">
     <div class="ctitle">📅 Dernières transactions</div>
-    <table>
-      <thead><tr>
-        <th style="width:14%">Date</th>
-        <th style="width:30%">Libellé</th>
-        <th style="width:26%">Catégorie</th>
-        <th style="width:16%;text-align:right">Montant</th>
-        <th style="width:14%;text-align:center">Type</th>
-      </tr></thead>
-      <tbody id="tx-body"></tbody>
-    </table>
+    <table><thead><tr>
+      <th style="width:14%">Date</th>
+      <th style="width:30%">Libellé</th>
+      <th style="width:26%">Catégorie</th>
+      <th style="width:16%;text-align:right">Montant</th>
+      <th style="width:14%;text-align:center">Type</th>
+    </tr></thead><tbody id="tx-body"></tbody></table>
   </div>
 </div>
 </div>
@@ -282,7 +291,13 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
 <script>
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=1352871861&single=true&output=csv';
 
-// ── BUDGETS ──
+// Montants initiaux connus (base de référence)
+const DETTE_INITIALS={
+  'BMCE Maroc':9007,'Carte Desjardins':1999,'Hicham':1680,
+  'Rhofrane':3000,'Joris':485,'Larissa':225,'Charlemagne':200,
+  'Thomas':146,'Victorine':146
+};
+
 const BUDGETS=[
   {cat:'21.Loyer',label:'Loyer',budget:877,icon:'🏠'},
   {cat:'23.Courant+Eau',label:'HydroQ',budget:65,icon:'💡'},
@@ -302,81 +317,37 @@ const BUDGETS=[
 ];
 const BUDGET_TOTAL=BUDGETS.reduce((s,b)=>s+b.budget,0);
 
-// ── DETTES ──
-const DETTES=[
-  {id:'desjardins',nom:'Carte Desjardins',montant_initial:1999,montant_restant:1999,type:'Crédit',icon:'💳',couleur:'#A32D2D',urgente:true,plan:'Remboursé avec retour impôt fédéral (juin 2026)',echeance:'Juin 2026'},
-  {id:'charlemagne',nom:'Charlemagne',montant_initial:200,montant_restant:200,type:'Personnel',icon:'🤝',couleur:'#D85A30',urgente:false,plan:'Remboursé avec retour impôt fédéral (juin 2026)',echeance:'Juin 2026'},
-  {id:'bmce',nom:'Crédit BMCE Maroc',montant_initial:9007,montant_restant:6167,type:'Crédit conso',icon:'🏦',couleur:'#534AB7',urgente:false,plan:'410 $/mois jusqu\'août 2027 (15 échéances restantes)',echeance:'Août 2027'},
-  {id:'hicham',nom:'Hicham',montant_initial:1680,montant_restant:1680,type:'Personnel',icon:'👤',couleur:'#185FA5',urgente:false,plan:'Soldé avec tontine B3 (août 2026)',echeance:'Août 2026'},
-  {id:'rhofrane',nom:'Rhofrane',montant_initial:3000,montant_restant:3000,type:'Personnel',icon:'👤',couleur:'#185FA5',urgente:false,plan:'Soldé avec tontine B1 (sept. 2026)',echeance:'Sept. 2026'},
-  {id:'joris',nom:'Joris',montant_initial:485,montant_restant:485,type:'Personnel',icon:'👤',couleur:'#BA7517',urgente:false,plan:'Soldé avec reste tontines (sept. 2026)',echeance:'Sept. 2026'},
-  {id:'larissa',nom:'Larissa',montant_initial:225,montant_restant:90,type:'Personnel',icon:'👤',couleur:'#BA7517',urgente:false,plan:'Remboursement progressif dès oct. 2026',echeance:'Oct. 2026'},
-  {id:'b3',nom:'Tontine B3',montant_initial:2300,montant_restant:2300,type:'Tontine',icon:'🎯',couleur:'#1D9E75',urgente:false,plan:'Tu reçois 2 300 $ fin août 2026',echeance:'Août 2026',tontine:true,entree:true},
-  {id:'b1',nom:'Tontine B1',montant_initial:3400,montant_restant:3400,type:'Tontine',icon:'🎯',couleur:'#1D9E75',urgente:false,plan:'Tu reçois 3 400 $ mi-sept. 2026',echeance:'Sept. 2026',tontine:true,entree:true},
-];
-
-// ── PLAN MOIS PAR MOIS ──
 const PLAN=[
   {mois:'Juin 2026',classe:'highlight-row',
-   evenements:['💰 Retour impôt fédéral : +3 100 $'],
-   dettes:['✅ Carte Desjardins soldée (−1 999 $)','✅ Charlemagne soldé (−200 $)','💰 Coussin urgence : +500 $','📋 Résidence permanente : ~400 $'],
-   entrees:3100,solde_dettes:7342},
+   evenements:['💰 Retour impôt fédéral : +3 100 $','💸 BMCE : −410 $'],
+   dettes:['✅ Carte Desjardins soldée (−1 999 $)','✅ Charlemagne soldé (−200 $)','💰 Coussin : +500 $','📋 Résidence permanente : ~400 $'],
+   entrees:3100,solde:7342},
   {mois:'Juil 2026',classe:'',
-   evenements:['💸 BMCE : −410 $','📉 Tontines B1+B3 en cours'],
-   dettes:['Hicham : 1 680 $ restant','Rhofrane : 3 000 $ restant','Larissa : 225 $ restant','Joris : 485 $ restant'],
-   entrees:0,solde_dettes:6932},
+   evenements:['💸 BMCE : −410 $','⏳ Attente tontines'],
+   dettes:['Hicham : 1 680 $ restant','Rhofrane : 3 000 $ restant','Joris : 485 $','Larissa : 225 $'],
+   entrees:0,solde:6932},
   {mois:'Août 2026',classe:'highlight-row',
    evenements:['🎯 Tontine B3 reçue : +2 300 $','💸 BMCE : −410 $'],
-   dettes:['✅ Hicham soldé (−1 680 $)','Rhofrane : 3 000 $ restant','Reste tontine : ~620 $'],
-   entrees:2300,solde_dettes:5252},
+   dettes:['✅ Hicham soldé (−1 680 $)','Rhofrane : 3 000 $ restant','Reste tontine ~620 $'],
+   entrees:2300,solde:5252},
   {mois:'Sept 2026',classe:'liberation-row',
    evenements:['🎯 Tontine B1 reçue : +3 400 $','💸 BMCE : −410 $','🏆 Mois de libération !'],
-   dettes:['✅ Rhofrane soldée (−3 000 $)','✅ Joris soldé (−485 $)','✅ Larissa presque soldée (−135 $)','Reste: ~90 $ Larissa'],
-   entrees:3400,solde_dettes:1762},
-  {mois:'Oct 2026',classe:'',
-   evenements:['💸 BMCE : −410 $','📉 Larissa : remb. final ~90 $'],
-   dettes:['✅ Larissa soldée','BMCE : ~5 dettes restantes'],
-   entrees:0,solde_dettes:1352},
-  {mois:'Nov 2026',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE continue...'],
-   entrees:0,solde_dettes:942},
-  {mois:'Déc 2026',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE continue...'],
-   entrees:0,solde_dettes:532},
-  {mois:'Jan 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 8 échéances restantes'],
-   entrees:0,solde_dettes:410},
-  {mois:'Fév 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 7 échéances'],
-   entrees:0,solde_dettes:410},
-  {mois:'Mars 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 6 échéances'],
-   entrees:0,solde_dettes:410},
-  {mois:'Avr 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 5 échéances'],
-   entrees:0,solde_dettes:410},
-  {mois:'Mai 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 4 échéances'],
-   entrees:0,solde_dettes:410},
-  {mois:'Juin 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 3 échéances'],
-   entrees:0,solde_dettes:410},
-  {mois:'Juil 2027',classe:'',
-   evenements:['💸 BMCE : −410 $'],
-   dettes:['BMCE : 2 échéances'],
-   entrees:0,solde_dettes:410},
+   dettes:['✅ Rhofrane soldée (−3 000 $)','✅ Joris soldé (−485 $)','✅ Larissa quasi soldée','Reste: ~90 $ Larissa'],
+   entrees:3400,solde:1762},
+  {mois:'Oct 2026',classe:'',evenements:['💸 BMCE : −410 $','✅ Larissa soldée (−90 $)'],dettes:['BMCE continue — 10 échéances'],entrees:0,solde:1352},
+  {mois:'Nov 2026',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 9 échéances'],entrees:0,solde:942},
+  {mois:'Déc 2026',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 8 échéances'],entrees:0,solde:532},
+  {mois:'Jan 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 7 échéances'],entrees:0,solde:410},
+  {mois:'Fév 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 6 échéances'],entrees:0,solde:410},
+  {mois:'Mars 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 5 échéances'],entrees:0,solde:410},
+  {mois:'Avr 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 4 échéances'],entrees:0,solde:410},
+  {mois:'Mai 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 3 échéances'],entrees:0,solde:410},
+  {mois:'Juin 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 2 échéances'],entrees:0,solde:410},
+  {mois:'Juil 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — dernière !'],entrees:0,solde:410},
   {mois:'Août 2027',classe:'liberation-row',
-   evenements:['💸 BMCE : DERNIÈRE ÉCHÉANCE','🏆 TOUTES DETTES SOLDÉES !','🚀 +410 $/mois libérés !'],
-   dettes:['✅ BMCE soldé définitivement','🎉 Zéro dette !'],
-   entrees:0,solde_dettes:0},
+   evenements:['🏆 BMCE : DERNIÈRE ÉCHÉANCE !','🎉 ZÉRO DETTE !','🚀 +410 $/mois libérés !'],
+   dettes:['✅ BMCE soldé définitivement','🎉 Liberté financière !'],
+   entrees:0,solde:0},
 ];
 
 const CAT1_LABELS={'01.Revenus':'Revenus','02.Dépenses fixes':'Dép. fixes','03.Dépenses Variables':'Dép. variables','04.Obligation Familial':'Oblig. familiales','05.Dette':'Dettes','06.Epargne':'Épargne','07.Hors Budget':'Hors budget','08.Installation':'Installation'};
@@ -384,7 +355,7 @@ const CAT2_LABELS={'11.Salaire Principal':'Salaire','21.Loyer':'Loyer','22.Assur
 const CATS_OUT=['02.Dépenses fixes','03.Dépenses Variables','04.Obligation Familial','05.Dette','06.Epargne','08.Installation'];
 const CAT_COLORS={'02.Dépenses fixes':'#534AB7','03.Dépenses Variables':'#378ADD','04.Obligation Familial':'#D85A30','05.Dette':'#A32D2D','06.Epargne':'#1D9E75','08.Installation':'#BA7517'};
 
-let MK=[],ML=[],allRows=[],selMonth=null,budgetMonth=null,detailMonth=null;
+let MK=[],ML=[],allRows=[],selMonth=null,budgetMonth=null,detailMonth=null,detteMonth=null;
 let ch1,ch2,ch3;
 const MONTH_FR=['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
 
@@ -452,7 +423,61 @@ function calcByCat2(rows,filter){
   return res;
 }
 
-// ── OVERVIEW ──
+// ── CALCUL DETTES DYNAMIQUE depuis le Sheets ──
+function calcDettes(rows, filter){
+  // Toutes les transactions de dette (cat1 = 05.Dette), tout temps
+  const detteRows = rows.filter(r => r.cat1 === '05.Dette' && r.type === 'Out');
+
+  // Grouper par bénéficiaire (libellé)
+  const parBenef = {};
+  detteRows.forEach(r => {
+    const nom = r.lib || r.lieu || r.cat2;
+    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:r.cat2, rows:[], totalPaye:0};
+    parBenef[nom].rows.push(r);
+    parBenef[nom].totalPaye += r.amt;
+  });
+
+  // Ajouter les dettes connues même si pas encore dans le Sheets
+  Object.keys(DETTE_INITIALS).forEach(nom => {
+    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:'52.Autre Dette', rows:[], totalPaye:0};
+  });
+
+  // Calcul pour chaque dette
+  const result = {};
+  Object.values(parBenef).forEach(d => {
+    const initial = DETTE_INITIALS[d.nom] || d.totalPaye;
+    const payeTout = d.totalPaye;
+
+    // Payé sur le mois filtré
+    let payeMois = 0;
+    if(filter) {
+      d.rows.forEach(r => { if(getMK(r.date)===filter) payeMois += r.amt; });
+    }
+
+    // Transactions du mois ou toutes
+    const txDisplay = filter
+      ? d.rows.filter(r => getMK(r.date)===filter)
+      : d.rows.slice(-5); // 5 dernières
+
+    const restant = Math.max(0, initial - payeTout);
+    const pct = initial > 0 ? Math.min(100, Math.round(payeTout/initial*100)) : 100;
+
+    result[d.nom] = {
+      nom: d.nom,
+      cat2: d.cat2,
+      initial,
+      payeTout,
+      payeMois,
+      restant,
+      pct,
+      soldee: restant <= 0,
+      txDisplay
+    };
+  });
+
+  return result;
+}
+
 function renderMetrics(d,filter){
   const s=d.totIn-d.totOut;
   const lbl=filter?ML[MK.indexOf(filter)]:'période complète';
@@ -473,46 +498,26 @@ function renderCharts(d){
   const keys=selMonth?[selMonth]:MK;
   const labels=selMonth?[ML[MK.indexOf(selMonth)]]:ML;
   if(ch1)ch1.destroy();
-  ch1=new Chart(document.getElementById('c1'),{
-    type:'bar',data:{labels,datasets:CATS_OUT.map(c=>({label:CAT1_LABELS[c]||c,data:keys.map(k=>Math.round(d.byMkCat[k]?.[c]||0)),backgroundColor:CAT_COLORS[c]||'#888',borderWidth:0}))},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{stacked:true,ticks:{font:{size:10},callback:v=>'$'+v}}}}
-  });
+  ch1=new Chart(document.getElementById('c1'),{type:'bar',data:{labels,datasets:CATS_OUT.map(c=>({label:CAT1_LABELS[c]||c,data:keys.map(k=>Math.round(d.byMkCat[k]?.[c]||0)),backgroundColor:CAT_COLORS[c]||'#888',borderWidth:0}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{stacked:true,ticks:{font:{size:10},callback:v=>'$'+v}}}}});
   document.getElementById('leg1').innerHTML=CATS_OUT.map(c=>`<span><span class="ldot" style="background:${CAT_COLORS[c]}"></span>${CAT1_LABELS[c]||c}</span>`).join('');
   if(ch2)ch2.destroy();
-  ch2=new Chart(document.getElementById('c2'),{
-    type:'bar',data:{labels,datasets:[
-      {label:'Revenus',data:keys.map(k=>Math.round(d.revByMk[k]||0)),backgroundColor:'#1D9E7566',borderColor:'#1D9E75',borderWidth:1},
-      {label:'Sorties',data:keys.map(k=>Math.round(d.depByMk[k]||0)),backgroundColor:'#A32D2D66',borderColor:'#A32D2D',borderWidth:1}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{x:{ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>'$'+v}}}}
-  });
+  ch2=new Chart(document.getElementById('c2'),{type:'bar',data:{labels,datasets:[{label:'Revenus',data:keys.map(k=>Math.round(d.revByMk[k]||0)),backgroundColor:'#1D9E7566',borderColor:'#1D9E75',borderWidth:1},{label:'Sorties',data:keys.map(k=>Math.round(d.depByMk[k]||0)),backgroundColor:'#A32D2D66',borderColor:'#A32D2D',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{x:{ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>'$'+v}}}}});
   const pie=Object.entries(d.byCat1).filter(([k])=>k!=='01.Revenus'&&k!=='07.Hors Budget').sort((a,b)=>b[1]-a[1]);
   document.getElementById('leg3').innerHTML=pie.map(([c])=>`<span><span class="ldot" style="background:${CAT_COLORS[c]||'#888'}"></span>${CAT1_LABELS[c]||c}</span>`).join('');
   if(ch3)ch3.destroy();
-  ch3=new Chart(document.getElementById('c3'),{
-    type:'doughnut',data:{labels:pie.map(([c])=>CAT1_LABELS[c]||c),datasets:[{data:pie.map(([,v])=>Math.round(v)),backgroundColor:pie.map(([c])=>CAT_COLORS[c]||'#888'),borderWidth:1,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
-  });
+  ch3=new Chart(document.getElementById('c3'),{type:'doughnut',data:{labels:pie.map(([c])=>CAT1_LABELS[c]||c),datasets:[{data:pie.map(([,v])=>Math.round(v)),backgroundColor:pie.map(([c])=>CAT_COLORS[c]||'#888'),borderWidth:1,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 }
 
-// ── BUDGET ──
 function renderBudget(){
   const byCat2=calcByCat2(allRows,budgetMonth);
   const lbl=budgetMonth?ML[MK.indexOf(budgetMonth)]:'tous mois';
-  document.getElementById('budget-subtitle').textContent=`Mois : ${lbl} · Budget total cible : ${fmt(BUDGET_TOTAL)}/mois`;
+  document.getElementById('budget-subtitle').textContent=`Mois : ${lbl} · Budget total : ${fmt(BUDGET_TOTAL)}/mois`;
   let html='';
   BUDGETS.forEach(b=>{
     const spent=byCat2[b.cat]||0;
     const pct=b.budget>0?Math.min((spent/b.budget)*100,100):0;
     const over=spent>b.budget,warn=spent>b.budget*0.8&&!over;
-    const barClass=over?'bbar-over':warn?'bbar-warn':'bbar-ok';
-    const statusClass=over?'over':warn?'warn':'ok';
-    const statusText=over?`+${fmt(spent-b.budget)} dépassé`:warn?'Proche limite':'OK';
-    html+=`<div class="bcard">
-      <div class="bcard-top"><div class="bcat">${b.icon} ${b.label}</div><span class="bstatus ${statusClass}">${statusText}</span></div>
-      <div class="bbar-bg"><div class="bbar-fill ${barClass}" style="width:${pct.toFixed(1)}%"></div></div>
-      <div class="bfooter"><span style="font-weight:600;color:${over?'#A32D2D':warn?'#854F0B':'#1D9E75'}">${fmt(spent)}</span><span style="color:#888780">sur ${fmt(b.budget)}</span></div>
-    </div>`;
+    html+=`<div class="bcard"><div class="bcard-top"><div class="bcat">${b.icon} ${b.label}</div><span class="bstatus ${over?'over':warn?'warn':'ok'}">${over?'Dépassé':warn?'⚠️':'OK'}</span></div><div class="bbar-bg"><div class="bbar-fill ${over?'bbar-over':warn?'bbar-warn':'bbar-ok'}" style="width:${pct.toFixed(1)}%"></div></div><div class="bfooter"><span style="font-weight:600;color:${over?'#A32D2D':warn?'#854F0B':'#1D9E75'}">${fmt(spent)}</span><span style="color:#888780">sur ${fmt(b.budget)}</span></div></div>`;
   });
   document.getElementById('budget-grid').innerHTML=html;
   let thtml='',tb=0,tr=0;
@@ -522,99 +527,135 @@ function renderBudget(){
     tb+=b.budget;tr+=spent;
     thtml+=`<tr><td>${b.icon} ${b.label}</td><td style="text-align:right;color:#534AB7;font-weight:600">${fmt(b.budget)}</td><td style="text-align:right;font-weight:600;color:${over?'#A32D2D':warn?'#854F0B':'#2C2C2A'}">${fmt(spent)}</td><td style="text-align:right;color:${ecart>=0?'#3B6D11':'#A32D2D'};font-weight:600">${fmtD(ecart)}</td><td style="text-align:center"><span class="bstatus ${over?'over':warn?'warn':'ok'}">${over?'Dépassé':warn?'⚠️':'✓'}</span></td></tr>`;
   });
-  const te=tb-tr;
-  thtml+=`<tr style="background:#F5F4FF;font-weight:600"><td>TOTAL</td><td style="text-align:right;color:#534AB7">${fmt(tb)}</td><td style="text-align:right;color:${tr>tb?'#A32D2D':'#2C2C2A'}">${fmt(tr)}</td><td style="text-align:right;color:${te>=0?'#3B6D11':'#A32D2D'}">${fmtD(te)}</td><td></td></tr>`;
+  thtml+=`<tr style="background:#F5F4FF;font-weight:600"><td>TOTAL</td><td style="text-align:right;color:#534AB7">${fmt(tb)}</td><td style="text-align:right;color:${tr>tb?'#A32D2D':'#2C2C2A'}">${fmt(tr)}</td><td style="text-align:right;color:${tb-tr>=0?'#3B6D11':'#A32D2D'}">${fmtD(tb-tr)}</td><td></td></tr>`;
   document.getElementById('budget-table').innerHTML=thtml;
   const alerts=[];
-  BUDGETS.forEach(b=>{
-    const spent=byCat2[b.cat]||0;
-    if(spent>b.budget)alerts.push({type:'danger',icon:'🚨',title:`${b.label} : dépassé`,text:`${fmt(spent)} dépensé sur ${fmt(b.budget)} prévu — dépassement de ${fmt(spent-b.budget)}.`});
-    else if(spent>b.budget*0.8)alerts.push({type:'warn',icon:'⚠️',title:`${b.label} : proche limite`,text:`${Math.round(spent/b.budget*100)}% du budget consommé (${fmt(spent)} / ${fmt(b.budget)}).`});
-  });
-  const oblig=(byCat2['41.TMR']||0)+(byCat2['42.Urgence']||0)+(byCat2['43.Autre OF']||0);
-  if(oblig>500)alerts.push({type:'warn',icon:'💸',title:'Obligations familiales élevées',text:`${fmt(oblig)} ce mois. Poste difficile à compresser mais à surveiller.`});
-  if(alerts.length===0)alerts.push({type:'good',icon:'✅',title:'Tout est sous contrôle !',text:'Aucun dépassement de budget ce mois.'});
+  BUDGETS.forEach(b=>{const spent=byCat2[b.cat]||0;if(spent>b.budget)alerts.push({type:'danger',icon:'🚨',title:`${b.label} : dépassé`,text:`${fmt(spent)} dépensé sur ${fmt(b.budget)} — dépassement de ${fmt(spent-b.budget)}.`});else if(spent>b.budget*0.8)alerts.push({type:'warn',icon:'⚠️',title:`${b.label} : proche limite`,text:`${Math.round(spent/b.budget*100)}% du budget (${fmt(spent)}/${fmt(b.budget)}).`});});
+  if(!alerts.length)alerts.push({type:'good',icon:'✅',title:'Tout sous contrôle !',text:'Aucun dépassement ce mois.'});
   document.getElementById('alerts-body').innerHTML=alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div class="alert-text"><strong>${a.title}</strong>${a.text}</div></div>`).join('');
 }
 
-// ── DETTES ──
 function renderDettes(){
-  const total=DETTES.filter(d=>!d.entree).reduce((s,d)=>s+d.montant_restant,0);
-  document.getElementById('d-total').textContent=fmt(total);
+  const dettes = calcDettes(allRows, detteMonth);
+  const lbl = detteMonth ? ML[MK.indexOf(detteMonth)] : 'toute la période';
+  document.getElementById('dette-subtitle').textContent = `Période : ${lbl} · Données depuis Google Sheets`;
+
+  // KPIs
+  const totalRestant = Object.values(dettes).filter(d=>!d.nom.includes('BMCE')||true).reduce((s,d)=>s+d.restant,0);
+  const totalPaye = Object.values(dettes).reduce((s,d)=>s+d.payeTout,0);
+  const totalInitial = Object.values(dettes).reduce((s,d)=>s+d.initial,0);
+  const payeMoisTotal = Object.values(dettes).reduce((s,d)=>s+d.payeMois,0);
+  const nbSoldees = Object.values(dettes).filter(d=>d.soldee).length;
+
+  document.getElementById('dette-kpis').innerHTML=`
+    <div class="mcard"><div class="mlabel">Total restant</div><div class="mval r">${fmt(totalRestant)}</div><div class="msub">toutes dettes</div></div>
+    <div class="mcard"><div class="mlabel">Total remboursé</div><div class="mval g">${fmt(totalPaye)}</div><div class="msub">depuis le début</div></div>
+    <div class="mcard"><div class="mlabel">Payé ce mois</div><div class="mval b">${fmt(detteMonth?payeMoisTotal:0)}</div><div class="msub">${lbl}</div></div>
+    <div class="mcard"><div class="mlabel">Dettes soldées</div><div class="mval p">${nbSoldees} / ${Object.keys(dettes).length}</div><div class="msub">sur le total</div></div>`;
+
+  // Cartes
   let html='';
-  DETTES.forEach(d=>{
-    const pct=d.montant_initial>0?Math.round((1-d.montant_restant/d.montant_initial)*100):0;
-    const soldee=d.montant_restant===0;
-    const cardClass=soldee?'dette-card soldee':d.urgente?'dette-card urgente':d.tontine?'dette-card tontine':'dette-card';
-    const badge=soldee?'<span class="badge-soldee">✅ Soldée</span>':d.urgente?'<span class="badge-urgente">🚨 Urgent</span>':d.tontine?'<span class="badge-tontine">🎯 Rentrée</span>':'<span class="badge-normal">'+d.type+'</span>';
-    const barColor=soldee?'#1D9E75':d.urgente?'#A32D2D':d.tontine?'#1D9E75':'#534AB7';
-    const amtColor=d.entree?'#3B6D11':'#A32D2D';
+  const sorted = Object.values(dettes).sort((a,b)=>b.restant-a.restant);
+  sorted.forEach(d=>{
+    const isBMCE = d.nom.includes('BMCE')||d.nom.includes('credit conso');
+    const cardClass = d.soldee?'dette-card soldee':isBMCE?'dette-card urgente':'dette-card';
+    const badge = d.soldee?'<span class="badge badge-soldee">✅ Soldée</span>':isBMCE?'<span class="badge badge-urgente">🏦 Crédit</span>':'<span class="badge badge-normal">👤 Personnel</span>';
+    const barColor = d.soldee?'#1D9E75':isBMCE?'#534AB7':'#D85A30';
+
+    // Transactions à afficher
+    const txHtml = d.txDisplay.length > 0
+      ? `<div class="dette-tx">
+          <div class="dette-tx-title">${detteMonth?'Paiements ce mois':'5 derniers paiements'}</div>
+          ${d.txDisplay.map(r=>`<div class="dette-tx-row"><span style="color:#888780">${r.date}</span><span style="font-weight:600;color:#A32D2D">−${fmt(r.amt)}</span></div>`).join('')}
+        </div>`
+      : detteMonth ? `<div class="dette-tx"><div style="font-size:11px;color:#B4B2A9;padding:6px 0">Aucun paiement ce mois</div></div>` : '';
+
     html+=`<div class="${cardClass}">
-      <div class="dette-header"><div class="dette-name">${d.icon} ${d.nom}</div>${badge}</div>
-      <div class="dette-montant" style="color:${amtColor}">${d.entree?'+':''}${fmt(d.montant_restant)}</div>
-      <div class="dette-sub">${d.entree?'Tu recevras ce montant':'Solde restant'} · Échéance : ${d.echeance}</div>
-      ${!d.entree?`<div class="dette-bar-bg"><div class="dette-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>`:''}
-      <div class="dette-footer">
-        <span>${d.plan}</span>
-        ${!d.entree?`<span>${pct}% remboursé</span>`:''}
+      <div class="dette-header">
+        <div class="dette-name">${isBMCE?'🏦':'👤'} ${d.nom}</div>
+        ${badge}
       </div>
+      <div class="dette-montant-restant" style="color:${d.soldee?'#3B6D11':'#A32D2D'}">${d.soldee?'Soldée ✅':fmt(d.restant)}</div>
+      <div style="font-size:12px;color:#888780;margin-bottom:10px">${d.soldee?'Remboursement complet':'restant à rembourser'}</div>
+      <div class="dette-stats">
+        <div class="dette-stat-item">
+          <div class="dette-stat-val" style="color:#534AB7">${fmt(d.initial)}</div>
+          <div class="dette-stat-lbl">Montant initial</div>
+        </div>
+        <div class="dette-stat-item">
+          <div class="dette-stat-val" style="color:#3B6D11">${fmt(d.payeTout)}</div>
+          <div class="dette-stat-lbl">Total remboursé</div>
+        </div>
+        <div class="dette-stat-item">
+          <div class="dette-stat-val" style="color:#A32D2D">${fmt(d.restant)}</div>
+          <div class="dette-stat-lbl">Restant</div>
+        </div>
+      </div>
+      <div class="dette-bar-wrap">
+        <div class="dette-bar-bg"><div class="dette-bar-fill" style="width:${d.pct}%;background:${barColor}"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#888780;margin-top:4px">
+          <span>${d.pct}% remboursé</span>
+          <span>${100-d.pct}% restant</span>
+        </div>
+      </div>
+      ${txHtml}
     </div>`;
   });
   document.getElementById('dette-grid').innerHTML=html;
-  // Plan
-  let phtml='';
+
+  // Tableau récap
+  let rhtml='';
+  sorted.forEach(d=>{
+    const barW=Math.min(100,d.pct);
+    const barColor=d.soldee?'#1D9E75':d.nom.includes('BMCE')?'#534AB7':'#D85A30';
+    rhtml+=`<tr>
+      <td style="font-weight:600">${d.nom}</td>
+      <td style="text-align:right;color:#534AB7">${fmt(d.initial)}</td>
+      <td style="text-align:right;color:#3B6D11">${fmt(d.payeTout)}</td>
+      <td style="text-align:right;color:${d.soldee?'#3B6D11':'#A32D2D'};font-weight:600">${fmt(d.restant)}</td>
+      <td><div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:${barColor}"></div></div><div style="font-size:10px;color:#888780;margin-top:2px">${d.pct}%</div></td>
+      <td style="text-align:center"><span class="badge ${d.soldee?'badge-soldee':'badge-progress'}">${d.soldee?'✅ Soldée':'En cours'}</span></td>
+    </tr>`;
+  });
+  document.getElementById('dette-recap').innerHTML=rhtml;
+}
+
+function renderPlan(){
+  let html='';
   PLAN.forEach(p=>{
     const evts=p.evenements.map(e=>{
-      let cls='evt-libre';
-      if(e.includes('impôt')||e.includes('Tontine'))cls='evt-tontine';
-      if(e.includes('BMCE'))cls='evt-paiement';
-      if(e.includes('soldé')||e.includes('soldée')||e.includes('SOLDÉES'))cls='evt-dette';
-      if(e.includes('libérés')||e.includes('Libération')||e.includes('🏆'))cls='evt-rentree';
+      let cls='evt-tontine';
+      if(e.includes('impôt')||e.includes('Tontine')||e.includes('reçue'))cls='evt-tontine';
+      if(e.includes('BMCE')||e.includes('−410'))cls='evt-paiement';
+      if(e.includes('soldé')||e.includes('soldée')||e.includes('SOLDÉES')||e.includes('ZÉRO')||e.includes('libérés')||e.includes('🏆')||e.includes('🎉')||e.includes('🚀'))cls='evt-rentree';
       return`<span class="plan-evt ${cls}">${e}</span>`;
     }).join('');
-    const dettes=p.dettes.map(d=>`<div style="font-size:11px;color:#5F5E5A;margin:1px 0">${d}</div>`).join('');
-    const soldeClass=p.solde_dettes===0?'pos':p.solde_dettes<2000?'pos':'neg';
-    phtml+=`<tr class="${p.classe}">
+    const dettes=p.dettes.map(d=>`<div style="font-size:11px;color:#5F5E5A;margin:2px 0">${d}</div>`).join('');
+    html+=`<tr class="${p.classe}">
       <td class="plan-mois">${p.mois}</td>
       <td>${evts}</td>
       <td>${dettes}</td>
       <td style="text-align:right;color:${p.entrees>0?'#3B6D11':'#888780'};font-weight:600">${p.entrees>0?'+'+fmt(p.entrees):'—'}</td>
-      <td class="plan-solde ${soldeClass}">${p.solde_dettes===0?'🎉 ZÉRO !':fmt(p.solde_dettes)}</td>
+      <td style="text-align:right;font-weight:700;color:${p.solde===0?'#3B6D11':p.solde<2000?'#854F0B':'#A32D2D'}">${p.solde===0?'🎉 ZÉRO !':fmt(p.solde)}</td>
     </tr>`;
   });
-  document.getElementById('plan-body').innerHTML=phtml;
+  document.getElementById('plan-body').innerHTML=html;
 }
 
-// ── DÉTAIL ──
 function renderDetail(filter){
   const byCat2={},c2c1={};
-  allRows.forEach(r=>{
-    const mk=getMK(r.date);
-    if(r.type==='Out'&&(!filter||mk===filter)){
-      byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;
-      c2c1[r.cat2]=r.cat1;
-    }
-  });
+  allRows.forEach(r=>{const mk=getMK(r.date);if(r.type==='Out'&&(!filter||mk===filter)){byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;}});
   document.getElementById('det-title').textContent=filter?`Détail sous-catégories — ${ML[MK.indexOf(filter)]}`:'Détail sous-catégories — toute la période';
   const sorted=Object.entries(byCat2).sort((a,b)=>b[1]-a[1]);
   const max=sorted[0]?.[1]||1,total=sorted.reduce((s,[,v])=>s+v,0);
-  document.getElementById('det-body').innerHTML=sorted.map(([c,v])=>{
-    const col=CAT_COLORS[c2c1[c]||'']||'#888780';
-    const pct=total>0?(v/total*100).toFixed(1):0;
-    return`<tr><td><span class="pill" style="background:${col}22;color:${col}">${CAT2_LABELS[c]||c}</span></td><td style="text-align:right;font-weight:600">${fmt(v)}</td><td style="text-align:right;color:#888780">${pct}%</td><td><div class="bar-bg"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${col}"></div></div></td></tr>`;
-  }).join('');
+  document.getElementById('det-body').innerHTML=sorted.map(([c,v])=>{const col=CAT_COLORS[c2c1[c]||'']||'#888780';const pct=total>0?(v/total*100).toFixed(1):0;return`<tr><td><span class="pill" style="background:${col}22;color:${col}">${CAT2_LABELS[c]||c}</span></td><td style="text-align:right;font-weight:600">${fmt(v)}</td><td style="text-align:right;color:#888780">${pct}%</td><td><div class="bar-bg"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${col}"></div></div></td></tr>`;}).join('');
   const txRows=allRows.filter(r=>!filter||getMK(r.date)===filter).slice(0,30);
-  document.getElementById('tx-body').innerHTML=txRows.map(r=>`<tr>
-    <td style="font-size:11px;color:#888780">${r.date}</td>
-    <td style="font-size:12px">${r.lib||r.lieu||'—'}</td>
-    <td><span class="pill" style="background:${(CAT_COLORS[r.cat1]||'#888')}22;color:${CAT_COLORS[r.cat1]||'#888'};font-size:10px">${CAT2_LABELS[r.cat2]||r.cat2||'—'}</span></td>
-    <td style="text-align:right;font-weight:600;color:${r.type==='In'?'#1D9E75':'#A32D2D'}">${r.type==='In'?'+':'−'}${fmt(r.amt)}</td>
-    <td style="text-align:center"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${r.type==='In'?'#EAF3DE':'#FCEBEB'};color:${r.type==='In'?'#3B6D11':'#A32D2D'}">${r.type}</span></td>
-  </tr>`).join('');
+  document.getElementById('tx-body').innerHTML=txRows.map(r=>`<tr><td style="font-size:11px;color:#888780">${r.date}</td><td style="font-size:12px">${r.lib||r.lieu||'—'}</td><td><span class="pill" style="background:${(CAT_COLORS[r.cat1]||'#888')}22;color:${CAT_COLORS[r.cat1]||'#888'};font-size:10px">${CAT2_LABELS[r.cat2]||r.cat2||'—'}</span></td><td style="text-align:right;font-weight:600;color:${r.type==='In'?'#1D9E75':'#A32D2D'}">${r.type==='In'?'+':'−'}${fmt(r.amt)}</td><td style="text-align:center"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${r.type==='In'?'#EAF3DE':'#FCEBEB'};color:${r.type==='In'?'#3B6D11':'#A32D2D'}">${r.type}</span></td></tr>`).join('');
 }
 
 function sel(m){selMonth=m;renderMonthBtns('mrow',selMonth,'sel');const d=calc(allRows,m);renderMetrics(d,m);renderCharts(d);}
 function selBudget(m){budgetMonth=m;renderMonthBtns('budget-mrow',budgetMonth,'selBudget');renderBudget();}
+function selDette(m){detteMonth=m;renderMonthBtns('dette-mrow',detteMonth,'selDette');renderDettes();}
 function selDetail(m){detailMonth=m;renderMonthBtns('detail-mrow',detailMonth,'selDetail');renderDetail(m);}
 
 function showTab(id,btn){
@@ -627,13 +668,16 @@ function showTab(id,btn){
 function renderAll(){
   renderMonthBtns('mrow',selMonth,'sel');
   renderMonthBtns('budget-mrow',budgetMonth,'selBudget');
+  renderMonthBtns('dette-mrow',detteMonth,'selDette');
   renderMonthBtns('detail-mrow',detailMonth,'selDetail');
   if(!budgetMonth&&MK.length>0)budgetMonth=MK[MK.length-1];
+  if(!detteMonth&&MK.length>0)detteMonth=null; // dettes : vue globale par défaut
   const d=calc(allRows,selMonth);
   renderMetrics(d,selMonth);
   renderCharts(d);
   renderBudget();
   renderDettes();
+  renderPlan();
   renderDetail(detailMonth);
 }
 
