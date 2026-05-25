@@ -10,131 +10,188 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#F0EFF8;color:#2C2C2A;min-height:100vh}
-.header{background:#2D3250;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header h1{font-size:16px;font-weight:500}
-.header-right{display:flex;align-items:center;gap:10px}
-.status{font-size:12px;padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:5px}
+
+/* ── HEADER ── */
+.header{background:#2D3250;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.header h1{font-size:14px;font-weight:500;white-space:nowrap}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.status{font-size:11px;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .status.ok{background:#EAF3DE;color:#3B6D11}
 .status.loading{background:#FAEEDA;color:#854F0B}
 .status.err{background:#FCEBEB;color:#A32D2D}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .dot-ok{background:#3B6D11}.dot-loading{background:#EF9F27;animation:pulse 1s infinite}.dot-err{background:#A32D2D}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.btn{padding:7px 14px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:12px;font-family:Arial}
+.btn{padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:12px;font-family:Arial;white-space:nowrap}
 .btn:hover{background:rgba(255,255,255,.2)}
-.nav{background:#fff;border-bottom:1px solid #E8E6FA;padding:0 20px;display:flex;overflow-x:auto}
-.nav-btn{padding:12px 16px;font-size:13px;border:none;background:none;cursor:pointer;color:#888780;border-bottom:2px solid transparent;font-family:Arial;white-space:nowrap}
+.btn-icon{padding:6px 10px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:16px;font-family:Arial}
+
+/* ── NAV BOTTOM MOBILE / TOP DESKTOP ── */
+.nav{background:#fff;border-bottom:1px solid #E8E6FA;display:flex;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{padding:10px 14px;font-size:12px;border:none;background:none;cursor:pointer;color:#888780;border-bottom:2px solid transparent;font-family:Arial;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:60px}
+.nav-btn .nav-icon{font-size:18px}
+.nav-btn .nav-label{font-size:10px}
 .nav-btn.act{color:#2D3250;border-bottom-color:#534AB7;font-weight:600}
-.container{max-width:1150px;margin:0 auto;padding:20px 16px}
+@media(max-width:600px){
+  .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;border-bottom:none;border-top:1px solid #E8E6FA;background:#fff;justify-content:space-around;padding:4px 0 env(safe-area-inset-bottom)}
+  body{padding-bottom:70px}
+  .nav-btn{border-bottom:none;border-top:2px solid transparent;padding:6px 8px}
+  .nav-btn.act{border-top-color:#534AB7;border-bottom:none}
+}
+
+/* ── LAYOUT ── */
+.container{max-width:1150px;margin:0 auto;padding:16px 12px}
 .tab{display:none}.tab.act{display:block}
-.months{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.mbtn{padding:6px 13px;border:1px solid #D0CEEE;border-radius:8px;font-size:12px;background:#fff;color:#5F5E5A;cursor:pointer;font-family:Arial}
+
+/* ── FILTRES MOIS ── */
+.months{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.mbtn{padding:5px 11px;border:1px solid #D0CEEE;border-radius:20px;font-size:11px;background:#fff;color:#5F5E5A;cursor:pointer;font-family:Arial}
 .mbtn.act{background:#2D3250;color:#fff;border-color:#2D3250;font-weight:500}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-@media(max-width:650px){.metrics{grid-template-columns:1fr 1fr}}
-.mcard{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E6FA}
-.mlabel{font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.mval{font-size:22px;font-weight:700}
+@media(max-width:600px){.mbtn{font-size:10px;padding:4px 9px}}
+
+/* ── MÉTRIQUES ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:650px){.metrics{grid-template-columns:1fr 1fr;gap:8px}}
+.mcard{background:#fff;border-radius:12px;padding:14px;border:1px solid #E8E6FA}
+.mlabel{font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.mval{font-size:20px;font-weight:700}
+@media(max-width:600px){.mval{font-size:17px}}
 .mval.g{color:#3B6D11}.mval.r{color:#A32D2D}.mval.p{color:#534AB7}.mval.b{color:#185FA5}
-.msub{font-size:11px;color:#B4B2A9;margin-top:3px}
-.card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:16px;border:1px solid #E8E6FA}
-.ctitle{font-size:14px;font-weight:600;color:#2C2C2A;margin-bottom:14px}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:650px){.r2{grid-template-columns:1fr}}
-.leg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-.leg span{display:flex;align-items:center;gap:4px;font-size:11px;color:#5F5E5A}
-.ldot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
-th{font-size:11px;font-weight:600;color:#888780;text-align:left;padding:7px 8px;border-bottom:1px solid #E8E6FA}
-td{padding:8px 8px;border-bottom:1px solid #F1EFE8;color:#2C2C2A;vertical-align:middle}
+.msub{font-size:10px;color:#B4B2A9;margin-top:2px}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #E8E6FA}
+.ctitle{font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:12px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:600px){.r2{grid-template-columns:1fr}}
+.leg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.leg span{display:flex;align-items:center;gap:3px;font-size:10px;color:#5F5E5A}
+.ldot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{font-size:10px;font-weight:600;color:#888780;text-align:left;padding:6px 8px;border-bottom:1px solid #E8E6FA}
+td{padding:7px 8px;border-bottom:1px solid #F1EFE8;color:#2C2C2A;vertical-align:middle}
 tr:last-child td{border-bottom:none}
-.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.bar-bg{background:#F1EFE8;border-radius:4px;height:8px;margin-top:4px;overflow:hidden}
-.bar-fill{height:8px;border-radius:4px;transition:width .3s}
-/* BUDGET */
-.budget-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
-@media(max-width:650px){.budget-grid{grid-template-columns:1fr}}
-.bcard{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E6FA}
-.bcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.bar-bg{background:#F1EFE8;border-radius:4px;height:7px;margin-top:3px;overflow:hidden}
+.bar-fill{height:7px;border-radius:4px;transition:width .3s}
+
+/* ── BUDGET ── */
+.budget-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:600px){.budget-grid{grid-template-columns:1fr}}
+.bcard{background:#fff;border-radius:12px;padding:14px;border:1px solid #E8E6FA}
+.bcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .bcat{font-size:13px;font-weight:600;color:#2C2C2A}
-.bbar-bg{background:#F1EFE8;border-radius:6px;height:10px;overflow:hidden;margin-bottom:6px}
-.bbar-fill{height:10px;border-radius:6px;transition:width .4s}
+.bbar-bg{background:#F1EFE8;border-radius:6px;height:9px;overflow:hidden;margin-bottom:5px}
+.bbar-fill{height:9px;border-radius:6px;transition:width .4s}
 .bbar-ok{background:#1D9E75}.bbar-warn{background:#EF9F27}.bbar-over{background:#A32D2D}
-.bfooter{display:flex;justify-content:space-between;font-size:11px;margin-top:5px}
-.bstatus{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.bfooter{display:flex;justify-content:space-between;font-size:11px;margin-top:4px}
+.bstatus{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
 .bstatus.ok{background:#EAF3DE;color:#3B6D11}
 .bstatus.warn{background:#FAEEDA;color:#854F0B}
 .bstatus.over{background:#FCEBEB;color:#A32D2D}
-.alert-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:10px;margin-bottom:10px}
-.alert-item.warn{background:#FAEEDA;border-left:3px solid #EF9F27}
-.alert-item.good{background:#EAF3DE;border-left:3px solid #1D9E75}
-.alert-item.danger{background:#FCEBEB;border-left:3px solid #A32D2D}
-.alert-icon{font-size:18px;flex-shrink:0}
-.alert-text{font-size:13px;line-height:1.5}
-.alert-text strong{display:block;margin-bottom:2px}
-/* DETTES */
-.dette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
-@media(max-width:650px){.dette-grid{grid-template-columns:1fr}}
-.dette-card{border-radius:14px;padding:18px;border:1.5px solid #E8E6FA;background:#fff}
+
+/* ── ALERTES AMÉLIORÉES ── */
+.alert-banner{border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid}
+.alert-banner.danger{background:#FFF0F0;border-color:#A32D2D}
+.alert-banner.warn{background:#FFFBF0;border-color:#EF9F27}
+.alert-banner.good{background:#F0FFF4;border-color:#1D9E75}
+.alert-banner.info{background:#F0F4FF;border-color:#534AB7}
+.alert-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1}
+.alert-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.alert-title.danger{color:#A32D2D}
+.alert-title.warn{color:#854F0B}
+.alert-title.good{color:#3B6D11}
+.alert-title.info{color:#534AB7}
+.alert-desc{font-size:12px;color:#5F5E5A;line-height:1.5}
+.alert-action{font-size:11px;margin-top:6px;padding:4px 10px;border-radius:20px;border:none;cursor:pointer;font-family:Arial;font-weight:600}
+.alert-action.danger{background:#FCEBEB;color:#A32D2D}
+.alert-action.warn{background:#FAEEDA;color:#854F0B}
+.alert-action.good{background:#EAF3DE;color:#3B6D11}
+
+/* ── NOTIFICATION BADGE ── */
+.notif-badge{display:inline-block;background:#A32D2D;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;line-height:16px;text-align:center;margin-left:3px;vertical-align:top}
+
+/* ── DETTES ── */
+.dette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:600px){.dette-grid{grid-template-columns:1fr}}
+.dette-card{border-radius:14px;padding:16px;border:1.5px solid #E8E6FA;background:#fff}
 .dette-card.soldee{border-color:#1D9E75;background:#F8FFF4}
 .dette-card.urgente{border-color:#A32D2D;background:#FFF8F8}
 .dette-card.tontine{border-color:#1D9E75;background:#F0FFF8}
 .dette-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .dette-name{font-size:14px;font-weight:700}
-.dette-montant-restant{font-size:28px;font-weight:700;margin-bottom:2px}
-.dette-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;background:#F5F4FF;border-radius:8px;padding:10px}
+.dette-montant-restant{font-size:26px;font-weight:700;margin-bottom:2px}
+@media(max-width:600px){.dette-montant-restant{font-size:22px}}
+.dette-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:10px 0;background:#F5F4FF;border-radius:8px;padding:10px}
 .dette-stat-item{text-align:center}
-.dette-stat-val{font-size:14px;font-weight:700}
-.dette-stat-lbl{font-size:10px;color:#888780;margin-top:2px}
-.dette-bar-wrap{margin:10px 0 6px}
-.dette-bar-bg{background:#F1EFE8;border-radius:6px;height:10px;overflow:hidden}
-.dette-bar-fill{height:10px;border-radius:6px;transition:width .5s}
-.dette-footer{font-size:11px;color:#888780;margin-top:6px}
-.dette-tx{margin-top:12px;border-top:1px solid #F1EFE8;padding-top:10px}
-.dette-tx-title{font-size:11px;font-weight:600;color:#888780;text-transform:uppercase;margin-bottom:6px}
+.dette-stat-val{font-size:13px;font-weight:700}
+.dette-stat-lbl{font-size:9px;color:#888780;margin-top:2px}
+.dette-bar-wrap{margin:8px 0 5px}
+.dette-bar-bg{background:#F1EFE8;border-radius:6px;height:9px;overflow:hidden}
+.dette-bar-fill{height:9px;border-radius:6px;transition:width .5s}
+.dette-footer{font-size:11px;color:#888780;margin-top:5px}
+.dette-tx{margin-top:10px;border-top:1px solid #F1EFE8;padding-top:8px}
+.dette-tx-title{font-size:10px;font-weight:600;color:#888780;text-transform:uppercase;margin-bottom:5px}
 .dette-tx-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #F5F4FF}
 .dette-tx-row:last-child{border:none}
-.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
 .badge-soldee{background:#EAF3DE;color:#3B6D11}
 .badge-urgente{background:#FCEBEB;color:#A32D2D}
 .badge-tontine{background:#EAF3DE;color:#0F6E56}
 .badge-normal{background:#E8E6FA;color:#534AB7}
 .badge-progress{background:#FAEEDA;color:#854F0B}
-/* PLAN */
-.plan-table{width:100%;border-collapse:collapse;font-size:12px}
-.plan-table th{font-size:11px;font-weight:600;color:#888780;padding:8px 10px;border-bottom:2px solid #E8E6FA;text-align:left;background:#F5F4FF}
-.plan-table td{padding:8px 10px;border-bottom:1px solid #F1EFE8;vertical-align:top}
+
+/* ── PLAN ── */
+.plan-table{width:100%;border-collapse:collapse;font-size:11px}
+.plan-table th{font-size:10px;font-weight:600;color:#888780;padding:7px 8px;border-bottom:2px solid #E8E6FA;text-align:left;background:#F5F4FF}
+.plan-table td{padding:7px 8px;border-bottom:1px solid #F1EFE8;vertical-align:top}
 .plan-table tr:last-child td{border-bottom:none}
-.plan-mois{font-weight:700;color:#2D3250;white-space:nowrap}
-.plan-evt{display:inline-block;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:600;margin:1px 2px 1px 0}
+.plan-mois{font-weight:700;color:#2D3250;white-space:nowrap;font-size:12px}
+.plan-evt{display:inline-block;padding:2px 6px;border-radius:10px;font-size:10px;font-weight:600;margin:1px 2px 1px 0}
 .evt-rentree{background:#EAF3DE;color:#3B6D11}
 .evt-paiement{background:#FCEBEB;color:#A32D2D}
 .evt-dette{background:#FAEEDA;color:#854F0B}
 .evt-tontine{background:#E8E6FA;color:#534AB7}
 .highlight-row{background:#FFFBEA}
 .liberation-row{background:#EAF3DE}
-footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
+
+footer{text-align:center;padding:12px;font-size:11px;color:#B4B2A9}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>📊 Suivi Finances Personnel</h1>
+  <h1>📊 Finances</h1>
   <div class="header-right">
     <div class="status loading" id="status-badge">
       <span class="dot dot-loading"></span>
       <span id="status-text">Chargement...</span>
     </div>
-    <button class="btn" onclick="loadData()">↻ Actualiser</button>
+    <button class="btn" onclick="loadData()" title="Actualiser">↻ <span class="btn-txt">Actualiser</span></button>
   </div>
 </div>
+<style>@media(max-width:400px){.btn-txt{display:none}}</style>
 
-<div class="nav">
-  <button class="nav-btn act" onclick="showTab('overview',this)">📈 Vue générale</button>
-  <button class="nav-btn" onclick="showTab('budget',this)">🎯 Budget</button>
-  <button class="nav-btn" onclick="showTab('dettes',this)">💳 Dettes</button>
-  <button class="nav-btn" onclick="showTab('plan',this)">🗓️ Plan 2026-2027</button>
-  <button class="nav-btn" onclick="showTab('detail',this)">📋 Détail</button>
+<div class="nav" id="main-nav">
+  <button class="nav-btn act" onclick="showTab('overview',this)" id="nav-overview">
+    <span class="nav-icon">📈</span><span class="nav-label">Général</span>
+  </button>
+  <button class="nav-btn" onclick="showTab('budget',this)" id="nav-budget">
+    <span class="nav-icon">🎯</span><span class="nav-label">Budget<span class="notif-badge" id="badge-budget" style="display:none">0</span></span>
+  </button>
+  <button class="nav-btn" onclick="showTab('dettes',this)" id="nav-dettes">
+    <span class="nav-icon">💳</span><span class="nav-label">Dettes</span>
+  </button>
+  <button class="nav-btn" onclick="showTab('plan',this)" id="nav-plan">
+    <span class="nav-icon">🗓️</span><span class="nav-label">Plan</span>
+  </button>
+  <button class="nav-btn" onclick="showTab('detail',this)" id="nav-detail">
+    <span class="nav-icon">📋</span><span class="nav-label">Détail</span>
+  </button>
 </div>
 
 <!-- TAB 1 : VUE GÉNÉRALE -->
@@ -236,8 +293,8 @@ footer{text-align:center;padding:16px;font-size:12px;color:#B4B2A9}
   </div>
   <div class="card">
     <div class="ctitle">📅 Plan mois par mois</div>
-    <div style="overflow-x:auto">
-    <table class="plan-table">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <table class="plan-table" style="min-width:600px">
       <thead><tr>
         <th style="width:10%;min-width:90px">Mois</th>
         <th style="width:32%">Événements & actions</th>
@@ -590,9 +647,60 @@ function renderBudget(){
   thtml+=`<tr style="background:#F5F4FF;font-weight:600"><td>TOTAL</td><td style="text-align:right;color:#534AB7">${fmt(tb)}</td><td style="text-align:right;color:${tr>tb?'#A32D2D':'#2C2C2A'}">${fmt(tr)}</td><td style="text-align:right;color:${tb-tr>=0?'#3B6D11':'#A32D2D'}">${fmtD(tb-tr)}</td><td></td></tr>`;
   document.getElementById('budget-table').innerHTML=thtml;
   const alerts=[];
-  BUDGETS.forEach(b=>{const spent=byCat2[b.cat]||0;if(spent>b.budget)alerts.push({type:'danger',icon:'🚨',title:`${b.label} : dépassé`,text:`${fmt(spent)} dépensé sur ${fmt(b.budget)} — dépassement de ${fmt(spent-b.budget)}.`});else if(spent>b.budget*0.8)alerts.push({type:'warn',icon:'⚠️',title:`${b.label} : proche limite`,text:`${Math.round(spent/b.budget*100)}% du budget (${fmt(spent)}/${fmt(b.budget)}).`});});
-  if(!alerts.length)alerts.push({type:'good',icon:'✅',title:'Tout sous contrôle !',text:'Aucun dépassement ce mois.'});
-  document.getElementById('alerts-body').innerHTML=alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div class="alert-text"><strong>${a.title}</strong>${a.text}</div></div>`).join('');
+  let totalBudgetA=0, totalReelA=0;
+
+  BUDGETS.forEach(b=>{
+    const spent=byCat2[b.cat]||0;
+    totalBudgetA+=b.budget; totalReelA+=spent;
+    if(spent>b.budget){
+      const depass=spent-b.budget;
+      const pct=Math.round(spent/b.budget*100);
+      alerts.push({type:'danger',icon:'🚨',title:`${b.icon} ${b.label} : budget dépassé de ${fmt(depass)}`,
+        text:`Tu as dépensé ${fmt(spent)} pour un budget de ${fmt(b.budget)} (${pct}%). Essaie de réduire ce poste le mois prochain.`});
+    } else if(spent>b.budget*0.85){
+      const reste=b.budget-spent;
+      alerts.push({type:'warn',icon:'⚠️',title:`${b.icon} ${b.label} : il reste seulement ${fmt(reste)}`,
+        text:`${Math.round(spent/b.budget*100)}% du budget consommé (${fmt(spent)} / ${fmt(b.budget)}). Fais attention d'ici la fin du mois.`});
+    }
+  });
+
+  // Alerte globale budget
+  const depassGlobal = totalReelA - totalBudgetA;
+  if(depassGlobal > 0){
+    alerts.unshift({type:'danger',icon:'🔴',title:`Budget global dépassé de ${fmt(depassGlobal)}`,
+      text:`Total dépensé : ${fmt(totalReelA)} pour un budget de ${fmt(totalBudgetA)}. Ton solde mensuel est en danger.`});
+  } else if(depassGlobal > -200){
+    alerts.push({type:'warn',icon:'🟡',title:`Budget global très serré — il reste ${fmt(-depassGlobal)}`,
+      text:`Tu es à ${Math.round(totalReelA/totalBudgetA*100)}% de ton budget total. Surveille tes prochaines dépenses.`});
+  }
+
+  // Alertes spécifiques intelligentes
+  const alim = byCat2['31.Alimentation']||0;
+  const transport = byCat2['32.Transport']||0;
+  const oblig = (byCat2['41.TMR']||0)+(byCat2['42.Urgence']||0)+(byCat2['43.Autre OF']||0);
+  const ubereats = (allRows||[]).filter(r=>{
+    const mk=getMK(r.date);
+    const lib=(r.lib||r.lieu||'').toLowerCase();
+    return r.type==='Out'&&(!budgetMonth||mk===budgetMonth)&&(lib.includes('uber')||lib.includes('doordash'));
+  }).reduce((s,r)=>s+r.amt,0);
+
+  if(ubereats>80) alerts.push({type:'warn',icon:'🍕',title:`Uber Eats / livraison : ${fmt(ubereats)} ce mois`,
+    text:`Les commandes en ligne coûtent cher. Cuisiner à la maison peut économiser facilement 50-100$/mois.`});
+
+  if(oblig>600) alerts.push({type:'warn',icon:'💸',title:`Obligations familiales élevées : ${fmt(oblig)}`,
+    text:`C'est un poste important. Essaie de fixer un plafond mensuel de 500$ pour les envois d'argent.`});
+
+  if(transport>300) alerts.push({type:'warn',icon:'🚗',title:`Transport : ${fmt(transport)} — au-dessus de la normale`,
+    text:`Le budget transport est de ${fmt(200)}. Les taxis/Lyft s'accumulent vite. Le bus RTC reste la meilleure option.`});
+
+  if(!alerts.length) alerts.push({type:'good',icon:'✅',title:'Excellent ! Tout sous contrôle ce mois.',
+    text:`Tu es dans le budget sur tous les postes. Continue comme ça — chaque mois dans le vert rapproche de tes objectifs.`});
+
+  document.getElementById('alerts-body').innerHTML=alerts.map(a=>`
+    <div class="alert-item ${a.type}">
+      <span class="alert-icon">${a.icon}</span>
+      <div class="alert-text"><strong>${a.title}</strong>${a.text}</div>
+    </div>`).join('');
 }
 
 function renderDettes(){
@@ -737,6 +845,11 @@ function showTab(id,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('act'));
   document.getElementById('tab-'+id).classList.add('act');
   btn.classList.add('act');
+}
+
+function showTabById(id){
+  const btn=document.getElementById('nav-'+id);
+  if(btn) showTab(id,btn);
 }
 
 function renderAll(){
