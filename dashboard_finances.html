@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -443,9 +444,11 @@ footer{text-align:center;padding:12px;font-size:11px;color:#B4B2A9}
 <script>
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=1352871861&single=true&output=csv';
 const CSV_DETTES='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=848987459&single=true&output=csv';
+const CSV_SOLDES='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=1872633694&single=true&output=csv';
 
 // Montants initiaux chargés dynamiquement depuis Google Sheets (onglet Dettes)
 let DETTE_INITIALS={};
+let SOLDES_MENSUELS={}; // { 'YYYY-MM': montant }
 let DETTE_DISPLAY_NAMES={'Credit Conso BMCE':'Crédit BMCE Maroc'};
 let DETTE_NOTES={};
 let DETTE_DATES={};
@@ -555,7 +558,7 @@ function calc(rows,filter){
     if(!byMkCat[mk]){byMkCat[mk]={};CATS_OUT.forEach(c=>byMkCat[mk][c]=0);}
     if(revByMk[mk]===undefined)revByMk[mk]=0;
     if(depByMk[mk]===undefined)depByMk[mk]=0;
-    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget')){
+    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget'||r.cat1==='06.Epargne')){
       revByMk[mk]+=r.amt;
       if(!filter||mk===filter)totIn+=r.amt;
     }
@@ -664,13 +667,47 @@ function calcDettes(rows, filter){
 }
 
 function renderMetrics(d,filter){
-  const s=d.totIn-d.totOut;
+  const fluxNet=d.totIn-d.totOut;
   const lbl=filter?ML[MK.indexOf(filter)]:'période complète';
-  document.getElementById('metrics').innerHTML=`
-    <div class="mcard"><div class="mlabel">Revenus</div><div class="mval g">${fmt(d.totIn)}</div><div class="msub">${lbl}</div></div>
-    <div class="mcard"><div class="mlabel">Total sorties</div><div class="mval r">${fmt(d.totOut)}</div><div class="msub">${lbl}</div></div>
-    <div class="mcard"><div class="mlabel">Épargne versée</div><div class="mval p">${fmt(d.totEpargne)}</div><div class="msub">incl. HCBE</div></div>
-    <div class="mcard"><div class="mlabel">Solde net</div><div class="mval ${s>=0?'g':'r'}">${fmt(s)}</div><div class="msub">${s>=0?'excédent':'déficit'}</div></div>`;
+
+  // Solde de report (depuis onglet Soldes)
+  const soldeDebut = filter ? (SOLDES_MENSUELS[filter]||0) : 0;
+  const soldeFin = soldeDebut + fluxNet;
+
+  // Affichage avec ou sans solde de report
+  const hasSolde = filter && soldeDebut > 0;
+
+  if(hasSolde){
+    document.getElementById('metrics').innerHTML=`
+      <div class="mcard">
+        <div class="mlabel">Solde début de mois</div>
+        <div class="mval b">${fmt(soldeDebut)}</div>
+        <div class="msub">au 1er ${ML[MK.indexOf(filter)]||lbl}</div>
+      </div>
+      <div class="mcard">
+        <div class="mlabel">Entrées</div>
+        <div class="mval g">${fmt(d.totIn)}</div>
+        <div class="msub">${lbl}</div>
+      </div>
+      <div class="mcard">
+        <div class="mlabel">Sorties</div>
+        <div class="mval r">${fmt(d.totOut)}</div>
+        <div class="msub">${lbl}</div>
+      </div>
+      <div class="mcard">
+        <div class="mlabel">Solde fin de mois</div>
+        <div class="mval ${soldeFin>=0?'g':'r'}">${fmt(soldeFin)}</div>
+        <div class="msub">${soldeFin>=0?'disponible':'attention'}</div>
+      </div>`;
+  } else {
+    document.getElementById('metrics').innerHTML=`
+      <div class="mcard"><div class="mlabel">Revenus</div><div class="mval g">${fmt(d.totIn)}</div><div class="msub">${lbl}</div></div>
+      <div class="mcard"><div class="mlabel">Total sorties</div><div class="mval r">${fmt(d.totOut)}</div><div class="msub">${lbl}</div></div>
+      <div class="mcard"><div class="mlabel">Épargne versée</div><div class="mval p">${fmt(d.totEpargne)}</div><div class="msub">incl. HCBE</div></div>
+      <div class="mcard"><div class="mlabel">Solde net</div><div class="mval ${fluxNet>=0?'g':'r'}">${fmt(fluxNet)}</div>
+        <div class="msub">${!filter?'Ajoute un solde dans Sheets pour voir la trésorerie réelle':fluxNet>=0?'excédent':'déficit'}</div>
+      </div>`;
+  }
 }
 
 function renderMonthBtns(elId,selVal,fn){
@@ -1232,6 +1269,22 @@ function loadData(){
       }catch(e){setStatus('err','Erreur parsing');}
     },
     error:()=>setStatus('err','Connexion impossible')
+  });
+
+  // Charger soldes en parallèle
+  Papa.parse(CSV_SOLDES+'&t='+Date.now(),{
+    download:true, header:true, skipEmptyLines:true,
+    complete:function(results){
+      SOLDES_MENSUELS={};
+      results.data.forEach(r=>{
+        const k=Object.keys(r);
+        const mois=(r[k[0]]||r['Mois']||'').trim().substring(0,7); // YYYY-MM
+        const solde=parseAmt(r[k[1]]||r['Solde_debut']||r['Solde début']||'0');
+        if(mois) SOLDES_MENSUELS[mois]=solde;
+      });
+      console.log('Soldes chargés:', SOLDES_MENSUELS);
+    },
+    error:function(){ console.warn('Soldes non disponibles'); }
   });
 
   // Charger dettes en parallèle (optionnel — si rate, valeurs par défaut)
