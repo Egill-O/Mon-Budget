@@ -739,18 +739,7 @@ function renderMetrics(d,filter){
         <div class="mval ${soldeFin>=0?'g':'r'}">${fmt(soldeFin)}</div>
         <div class="msub">${soldeFin>=0?'disponible':'attention'}</div>
       </div>`;
-    // Ajouter ligne fonds urgence en dessous
-    document.getElementById('metrics').innerHTML += `
-      <div class="mcard" style="grid-column:span 4;background:#F0FFF4;border-color:#1D9E75">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div class="mlabel" style="color:#1D9E75">🏦 Solde fonds d'urgence (cumulatif)</div>
-            <div class="mval g" style="font-size:24px">${fmt(soldeFondsUrgence)}</div>
-            <div class="msub">Total déposé moins retraits depuis le début</div>
-          </div>
-          <div style="font-size:40px;opacity:.3">🛡️</div>
-        </div>
-      </div>`;
+
   } else {
     document.getElementById('metrics').innerHTML=`
       <div class="mcard"><div class="mlabel">Revenus</div><div class="mval g">${fmt(d.totIn)}</div><div class="msub">${lbl}</div></div>
@@ -759,16 +748,6 @@ function renderMetrics(d,filter){
       <div class="mcard"><div class="mlabel">Solde net</div><div class="mval ${fluxNet>=0?'g':'r'}">${fmt(fluxNet)}</div>
         <div class="msub">${!filter?'Ajoute un solde dans Sheets pour voir la trésorerie réelle':fluxNet>=0?'excédent':'déficit'}</div>
       </div>
-      <div class="mcard" style="grid-column:span 4;background:#F0FFF4;border-color:#1D9E75">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div class="mlabel" style="color:#1D9E75">🏦 Solde fonds d'urgence (cumulatif)</div>
-            <div class="mval g" style="font-size:24px">${fmt(soldeFondsUrgence)}</div>
-            <div class="msub">Total déposé moins retraits — tous mouvements depuis le début</div>
-          </div>
-          <div style="font-size:40px;opacity:.3">🛡️</div>
-        </div>
-      </div>`;
   }
 }
 
@@ -996,15 +975,42 @@ function renderDetail(filter){
   allRows.forEach(r=>{
     const mk=getMK(r.date);
     const isFondsUrgence=r.cat2==="61.Fonds d'urgence";
-    // Out normal = dépense
     if(r.type==='Out'&&!isFondsUrgence&&(!filter||mk===filter)){
       byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;
     }
-    // Fonds urgence In = alimentation = sortie réelle
     if(r.type==='In'&&isFondsUrgence&&(!filter||mk===filter)){
       byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;
     }
   });
+
+  // Afficher solde cumulatif fonds urgence en haut du détail
+  const soldeFU = calcSoldeFondsUrgence(allRows, filter);
+  const detContainer = document.getElementById('tab-detail').querySelector('.container');
+  let fuCard = document.getElementById('fu-solde-card');
+  if(!fuCard){
+    fuCard = document.createElement('div');
+    fuCard.id = 'fu-solde-card';
+    fuCard.className = 'card';
+    fuCard.style.cssText = 'background:#F0FFF4;border-color:#1D9E75;margin-bottom:14px';
+    // Insérer après les filtres mois
+    const mrowEl = document.getElementById('detail-mrow');
+    mrowEl.insertAdjacentElement('afterend', fuCard);
+  }
+  fuCard.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;color:#1D9E75;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🛡️ Solde fonds d'urgence (cumulatif)</div>
+        <div style="font-size:28px;font-weight:700;color:#3B6D11">${fmt(soldeFU)}</div>
+        <div style="font-size:11px;color:#888780;margin-top:3px">Total déposé − retraits · ${filter?ML[MK.indexOf(filter)]:'toute la période'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#888780">Objectif suggéré</div>
+        <div style="font-size:16px;font-weight:600;color:#534AB7">$1 000</div>
+        <div style="font-size:10px;color:#888780">${Math.min(100,Math.round(soldeFU/1000*100))}% atteint</div>
+        <div style="background:#F1EFE8;border-radius:4px;height:6px;width:100px;margin-top:4px;overflow:hidden"><div style="height:6px;background:#1D9E75;border-radius:4px;width:${Math.min(100,Math.round(soldeFU/1000*100))}%"></div></div>
+      </div>
+    </div>`;
+
   document.getElementById('det-title').textContent=filter?`Détail sous-catégories — ${ML[MK.indexOf(filter)]}`:'Détail sous-catégories — toute la période';
   const sorted=Object.entries(byCat2).sort((a,b)=>b[1]-a[1]);
   const max=sorted[0]?.[1]||1,total=sorted.reduce((s,[,v])=>s+v,0);
@@ -1012,13 +1018,22 @@ function renderDetail(filter){
   const txRows=allRows.filter(r=>!filter||getMK(r.date)===filter).slice(0,30);
   document.getElementById('tx-body').innerHTML=txRows.map(r=>{
     const isFU = r.cat2==="61.Fonds d'urgence";
-    // Pour fonds urgence: In = dépôt (sortie compte = rouge), Out = retrait (rentrée = vert)
-    const isOut = isFU ? r.type==='In' : r.type==='Out';
-    const sign = isOut ? '−' : '+';
-    const color = isOut ? '#A32D2D' : '#1D9E75';
-    const bgBadge = isOut ? '#FCEBEB' : '#EAF3DE';
-    const colorBadge = isOut ? '#A32D2D' : '#3B6D11';
-    const label = isFU ? (r.type==='In'?'Dépôt':'Retrait') : r.type;
+    // Fonds urgence : In = dépôt (sort du compte = −rouge), Out = retrait (entre dans compte = +vert)
+    // Toutes autres catégories : In = +vert, Out = −rouge
+    let sign, color, bgBadge, colorBadge, label;
+    if(isFU){
+      sign = r.type==='In' ? '−' : '+';
+      color = r.type==='In' ? '#A32D2D' : '#1D9E75';
+      bgBadge = r.type==='In' ? '#FCEBEB' : '#EAF3DE';
+      colorBadge = r.type==='In' ? '#A32D2D' : '#3B6D11';
+      label = r.type==='In' ? 'Dépôt FU' : 'Retrait FU';
+    } else {
+      sign = r.type==='Out' ? '−' : '+';
+      color = r.type==='Out' ? '#A32D2D' : '#1D9E75';
+      bgBadge = r.type==='Out' ? '#FCEBEB' : '#EAF3DE';
+      colorBadge = r.type==='Out' ? '#A32D2D' : '#3B6D11';
+      label = r.type;
+    }
     return `<tr><td style="font-size:11px;color:#888780">${r.date}</td><td style="font-size:12px">${r.lib||r.lieu||'—'}</td><td><span class="pill" style="background:${(CAT_COLORS[r.cat1]||'#888')}22;color:${CAT_COLORS[r.cat1]||'#888'};font-size:10px">${CAT2_LABELS[r.cat2]||r.cat2||'—'}</span></td><td style="text-align:right;font-weight:600;color:${color}">${sign}${fmt(r.amt)}</td><td style="text-align:center"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${bgBadge};color:${colorBadge}">${label}</span></td></tr>`;
   }).join('');
 }
