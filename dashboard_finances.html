@@ -558,16 +558,31 @@ function calc(rows,filter){
     if(!byMkCat[mk]){byMkCat[mk]={};CATS_OUT.forEach(c=>byMkCat[mk][c]=0);}
     if(revByMk[mk]===undefined)revByMk[mk]=0;
     if(depByMk[mk]===undefined)depByMk[mk]=0;
-    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget'||r.cat1==='06.Epargne')){
+    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget')){
       revByMk[mk]+=r.amt;
       if(!filter||mk===filter)totIn+=r.amt;
     }
-    if(r.type==='Out'){
+    // Fonds urgence : In = dépôt (sortie compte), Out = retrait (neutre)
+    // On traite le fonds d'urgence séparément — ni revenu ni dépense ordinaire
+    const isFondsUrgence = r.cat2==="61.Fonds d'urgence";
+
+    if(r.type==='Out' && !isFondsUrgence){
       if(byMkCat[mk][r.cat1]!==undefined)byMkCat[mk][r.cat1]+=r.amt;
       depByMk[mk]+=r.amt;
       if(!filter||mk===filter){
         totOut+=r.amt;
         if(r.cat1==='06.Epargne')totEpargne+=r.amt;
+        byCat1[r.cat1]=(byCat1[r.cat1]||0)+r.amt;
+        byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;
+      }
+    }
+    // Fonds urgence In = sortie réelle du compte courant
+    if(r.type==='In' && isFondsUrgence){
+      if(byMkCat[mk][r.cat1]!==undefined)byMkCat[mk][r.cat1]+=r.amt;
+      depByMk[mk]+=r.amt;
+      if(!filter||mk===filter){
+        totOut+=r.amt;
+        totEpargne+=r.amt;
         byCat1[r.cat1]=(byCat1[r.cat1]||0)+r.amt;
         byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;
       }
