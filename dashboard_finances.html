@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -605,6 +606,22 @@ function calcByCat2(rows,filter){
   return res;
 }
 
+// ── SOLDE FONDS D'URGENCE (cumulatif depuis le début) ──
+function calcSoldeFondsUrgence(rows, upToFilter){
+  // Calcule le solde réel du fonds d'urgence
+  // In = dépôt dans le fonds (augmente le solde)
+  // Out = retrait du fonds (diminue le solde)
+  let solde = 0;
+  rows.forEach(r => {
+    if(r.cat2 !== "61.Fonds d'urgence") return;
+    // Si filtre mois, on inclut tout jusqu'à ce mois inclus
+    if(upToFilter && getMK(r.date) > upToFilter) return;
+    if(r.type === 'In') solde += r.amt;
+    else if(r.type === 'Out') solde -= r.amt;
+  });
+  return Math.max(0, solde);
+}
+
 // ── CALCUL DETTES DYNAMIQUE depuis le Sheets ──
 function calcDettes(rows, filter){
   const detteRows = rows.filter(r => r.cat1 === '05.Dette' && r.type === 'Out');
@@ -697,6 +714,9 @@ function renderMetrics(d,filter){
   // Affichage avec ou sans solde de report
   const hasSolde = filter && soldeDebut > 0;
 
+  // Solde fonds urgence cumulatif
+  const soldeFondsUrgence = calcSoldeFondsUrgence(allRows, filter);
+
   if(hasSolde){
     document.getElementById('metrics').innerHTML=`
       <div class="mcard">
@@ -705,12 +725,12 @@ function renderMetrics(d,filter){
         <div class="msub">au 1er ${ML[MK.indexOf(filter)]||lbl}</div>
       </div>
       <div class="mcard">
-        <div class="mlabel">Entrées</div>
+        <div class="mlabel">Entrées du mois</div>
         <div class="mval g">${fmt(d.totIn)}</div>
         <div class="msub">${lbl}</div>
       </div>
       <div class="mcard">
-        <div class="mlabel">Sorties</div>
+        <div class="mlabel">Sorties du mois</div>
         <div class="mval r">${fmt(d.totOut)}</div>
         <div class="msub">${lbl}</div>
       </div>
@@ -719,6 +739,18 @@ function renderMetrics(d,filter){
         <div class="mval ${soldeFin>=0?'g':'r'}">${fmt(soldeFin)}</div>
         <div class="msub">${soldeFin>=0?'disponible':'attention'}</div>
       </div>`;
+    // Ajouter ligne fonds urgence en dessous
+    document.getElementById('metrics').innerHTML += `
+      <div class="mcard" style="grid-column:span 4;background:#F0FFF4;border-color:#1D9E75">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="mlabel" style="color:#1D9E75">🏦 Solde fonds d'urgence (cumulatif)</div>
+            <div class="mval g" style="font-size:24px">${fmt(soldeFondsUrgence)}</div>
+            <div class="msub">Total déposé moins retraits depuis le début</div>
+          </div>
+          <div style="font-size:40px;opacity:.3">🛡️</div>
+        </div>
+      </div>`;
   } else {
     document.getElementById('metrics').innerHTML=`
       <div class="mcard"><div class="mlabel">Revenus</div><div class="mval g">${fmt(d.totIn)}</div><div class="msub">${lbl}</div></div>
@@ -726,6 +758,16 @@ function renderMetrics(d,filter){
       <div class="mcard"><div class="mlabel">Épargne versée</div><div class="mval p">${fmt(d.totEpargne)}</div><div class="msub">incl. HCBE</div></div>
       <div class="mcard"><div class="mlabel">Solde net</div><div class="mval ${fluxNet>=0?'g':'r'}">${fmt(fluxNet)}</div>
         <div class="msub">${!filter?'Ajoute un solde dans Sheets pour voir la trésorerie réelle':fluxNet>=0?'excédent':'déficit'}</div>
+      </div>
+      <div class="mcard" style="grid-column:span 4;background:#F0FFF4;border-color:#1D9E75">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="mlabel" style="color:#1D9E75">🏦 Solde fonds d'urgence (cumulatif)</div>
+            <div class="mval g" style="font-size:24px">${fmt(soldeFondsUrgence)}</div>
+            <div class="msub">Total déposé moins retraits — tous mouvements depuis le début</div>
+          </div>
+          <div style="font-size:40px;opacity:.3">🛡️</div>
+        </div>
       </div>`;
   }
 }
