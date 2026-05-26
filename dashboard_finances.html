@@ -952,7 +952,18 @@ function renderPlan(){
 
 function renderDetail(filter){
   const byCat2={},c2c1={};
-  allRows.forEach(r=>{const mk=getMK(r.date);if(r.type==='Out'&&(!filter||mk===filter)){byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;}});
+  allRows.forEach(r=>{
+    const mk=getMK(r.date);
+    const isFondsUrgence=r.cat2==="61.Fonds d'urgence";
+    // Out normal = dépense
+    if(r.type==='Out'&&!isFondsUrgence&&(!filter||mk===filter)){
+      byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;
+    }
+    // Fonds urgence In = alimentation = sortie réelle
+    if(r.type==='In'&&isFondsUrgence&&(!filter||mk===filter)){
+      byCat2[r.cat2]=(byCat2[r.cat2]||0)+r.amt;c2c1[r.cat2]=r.cat1;
+    }
+  });
   document.getElementById('det-title').textContent=filter?`Détail sous-catégories — ${ML[MK.indexOf(filter)]}`:'Détail sous-catégories — toute la période';
   const sorted=Object.entries(byCat2).sort((a,b)=>b[1]-a[1]);
   const max=sorted[0]?.[1]||1,total=sorted.reduce((s,[,v])=>s+v,0);
