@@ -747,7 +747,7 @@ function renderMetrics(d,filter){
       <div class="mcard"><div class="mlabel">Épargne versée</div><div class="mval p">${fmt(d.totEpargne)}</div><div class="msub">incl. HCBE</div></div>
       <div class="mcard"><div class="mlabel">Solde net</div><div class="mval ${fluxNet>=0?'g':'r'}">${fmt(fluxNet)}</div>
         <div class="msub">${!filter?'Ajoute un solde dans Sheets pour voir la trésorerie réelle':fluxNet>=0?'excédent':'déficit'}</div>
-      </div>
+      </div>`;
   }
 }
 
