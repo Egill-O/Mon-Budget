@@ -983,58 +983,25 @@ function renderDetail(filter){
     }
   });
 
-  // Afficher solde cumulatif fonds urgence en haut du détail
-  const soldeFU = calcSoldeFondsUrgence(allRows, filter);
-  const detContainer = document.getElementById('tab-detail').querySelector('.container');
-  let fuCard = document.getElementById('fu-solde-card');
-  if(!fuCard){
-    fuCard = document.createElement('div');
-    fuCard.id = 'fu-solde-card';
-    fuCard.className = 'card';
-    fuCard.style.cssText = 'background:#F0FFF4;border-color:#1D9E75;margin-bottom:14px';
-    // Insérer après les filtres mois
-    const mrowEl = document.getElementById('detail-mrow');
-    mrowEl.insertAdjacentElement('afterend', fuCard);
-  }
-  fuCard.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:10px;color:#1D9E75;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🛡️ Solde fonds d'urgence (cumulatif)</div>
-        <div style="font-size:28px;font-weight:700;color:#3B6D11">${fmt(soldeFU)}</div>
-        <div style="font-size:11px;color:#888780;margin-top:3px">Total déposé − retraits · ${filter?ML[MK.indexOf(filter)]:'toute la période'}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:#888780">Objectif suggéré</div>
-        <div style="font-size:16px;font-weight:600;color:#534AB7">$1 000</div>
-        <div style="font-size:10px;color:#888780">${Math.min(100,Math.round(soldeFU/1000*100))}% atteint</div>
-        <div style="background:#F1EFE8;border-radius:4px;height:6px;width:100px;margin-top:4px;overflow:hidden"><div style="height:6px;background:#1D9E75;border-radius:4px;width:${Math.min(100,Math.round(soldeFU/1000*100))}%"></div></div>
-      </div>
-    </div>`;
-
   document.getElementById('det-title').textContent=filter?`Détail sous-catégories — ${ML[MK.indexOf(filter)]}`:'Détail sous-catégories — toute la période';
   const sorted=Object.entries(byCat2).sort((a,b)=>b[1]-a[1]);
   const max=sorted[0]?.[1]||1,total=sorted.reduce((s,[,v])=>s+v,0);
-  document.getElementById('det-body').innerHTML=sorted.map(([c,v])=>{const col=CAT_COLORS[c2c1[c]||'']||'#888780';const pct=total>0?(v/total*100).toFixed(1):0;return`<tr><td><span class="pill" style="background:${col}22;color:${col}">${CAT2_LABELS[c]||c}</span></td><td style="text-align:right;font-weight:600">${fmt(v)}</td><td style="text-align:right;color:#888780">${pct}%</td><td><div class="bar-bg"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${col}"></div></div></td></tr>`;}).join('');
+  const soldeFUdetail = calcSoldeFondsUrgence(allRows, filter);
+  document.getElementById('det-body').innerHTML=sorted.map(([c,v])=>{
+    const col=CAT_COLORS[c2c1[c]||'']||'#888780';
+    const isFU = c === "61.Fonds d'urgence";
+    const displayVal = isFU ? soldeFUdetail : v;
+    const pct=total>0?(displayVal/total*100).toFixed(1):0;
+    return`<tr><td><span class="pill" style="background:${col}22;color:${col}">${CAT2_LABELS[c]||c}</span></td><td style="text-align:right;font-weight:600">${fmt(displayVal)}</td><td style="text-align:right;color:#888780">${pct}%</td><td><div class="bar-bg"><div class="bar-fill" style="width:${(displayVal/max*100).toFixed(1)}%;background:${col}"></div></div></td></tr>`;
+  }).join('');
   const txRows=allRows.filter(r=>!filter||getMK(r.date)===filter).slice(0,30);
   document.getElementById('tx-body').innerHTML=txRows.map(r=>{
-    const isFU = r.cat2==="61.Fonds d'urgence";
-    // Fonds urgence : In = dépôt (sort du compte = −rouge), Out = retrait (entre dans compte = +vert)
-    // Toutes autres catégories : In = +vert, Out = −rouge
-    let sign, color, bgBadge, colorBadge, label;
-    if(isFU){
-      sign = r.type==='In' ? '−' : '+';
-      color = r.type==='In' ? '#A32D2D' : '#1D9E75';
-      bgBadge = r.type==='In' ? '#FCEBEB' : '#EAF3DE';
-      colorBadge = r.type==='In' ? '#A32D2D' : '#3B6D11';
-      label = r.type==='In' ? 'Dépôt FU' : 'Retrait FU';
-    } else {
-      sign = r.type==='Out' ? '−' : '+';
-      color = r.type==='Out' ? '#A32D2D' : '#1D9E75';
-      bgBadge = r.type==='Out' ? '#FCEBEB' : '#EAF3DE';
-      colorBadge = r.type==='Out' ? '#A32D2D' : '#3B6D11';
-      label = r.type;
-    }
-    return `<tr><td style="font-size:11px;color:#888780">${r.date}</td><td style="font-size:12px">${r.lib||r.lieu||'—'}</td><td><span class="pill" style="background:${(CAT_COLORS[r.cat1]||'#888')}22;color:${CAT_COLORS[r.cat1]||'#888'};font-size:10px">${CAT2_LABELS[r.cat2]||r.cat2||'—'}</span></td><td style="text-align:right;font-weight:600;color:${color}">${sign}${fmt(r.amt)}</td><td style="text-align:center"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${bgBadge};color:${colorBadge}">${label}</span></td></tr>`;
+    const isIn = r.type==='In';
+    const sign = isIn ? '+' : '−';
+    const color = isIn ? '#1D9E75' : '#A32D2D';
+    const bgBadge = isIn ? '#EAF3DE' : '#FCEBEB';
+    const colorBadge = isIn ? '#3B6D11' : '#A32D2D';
+    return `<tr><td style="font-size:11px;color:#888780">${r.date}</td><td style="font-size:12px">${r.lib||r.lieu||'—'}</td><td><span class="pill" style="background:${(CAT_COLORS[r.cat1]||'#888')}22;color:${CAT_COLORS[r.cat1]||'#888'};font-size:10px">${CAT2_LABELS[r.cat2]||r.cat2||'—'}</span></td><td style="text-align:right;font-weight:600;color:${color}">${sign}${fmt(r.amt)}</td><td style="text-align:center"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${bgBadge};color:${colorBadge}">${r.type}</span></td></tr>`;
   }).join('');
 }
 
