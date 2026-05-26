@@ -595,7 +595,13 @@ function calcByCat2(rows,filter){
   const res={};
   rows.forEach(r=>{
     const mk=getMK(r.date);
-    if(r.type==='Out'&&(!filter||mk===filter))res[r.cat2]=(res[r.cat2]||0)+r.amt;
+    const isFondsUrgence = r.cat2==="61.Fonds d'urgence";
+    // Out normal = dépense
+    if(r.type==='Out'&&!isFondsUrgence&&(!filter||mk===filter))
+      res[r.cat2]=(res[r.cat2]||0)+r.amt;
+    // Fonds urgence : In = alimentation = sortie réelle du compte
+    if(r.type==='In'&&isFondsUrgence&&(!filter||mk===filter))
+      res[r.cat2]=(res[r.cat2]||0)+r.amt;
   });
   return res;
 }
