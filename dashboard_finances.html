@@ -94,6 +94,12 @@ tr:last-child td{border-bottom:none}
 .bstatus.over{background:#FCEBEB;color:#A32D2D}
 
 /* ── ALERTES AMÉLIORÉES ── */
+.alert-item{border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;border-left:4px solid}
+.alert-item.danger{background:#FFF0F0;border-color:#A32D2D}
+.alert-item.warn{background:#FFFBF0;border-color:#EF9F27}
+.alert-item.good{background:#F0FFF4;border-color:#1D9E75}
+.alert-text{flex:1;font-size:12px;color:#5F5E5A;line-height:1.5}
+.alert-text strong{display:block;color:#2C2C2A;margin-bottom:2px;font-size:13px}
 .alert-banner{border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid}
 .alert-banner.danger{background:#FFF0F0;border-color:#A32D2D}
 .alert-banner.warn{background:#FFFBF0;border-color:#EF9F27}
@@ -452,6 +458,8 @@ let SOLDES_MENSUELS={}; // { 'YYYY-MM': montant }
 let DETTE_DISPLAY_NAMES={'Credit Conso BMCE':'Crédit BMCE Maroc'};
 let DETTE_NOTES={};
 let DETTE_DATES={};
+let DETTE_STATUT={};   // 'Active' | 'Soldée'
+let DETTE_ORDRE=[];    // ordre de saisie dans le Sheets
 
 function normalizeDetteName(lib, cat2){
   if(cat2==='51.Credit Conso') return 'Credit Conso BMCE';
@@ -461,21 +469,21 @@ function normalizeDetteName(lib, cat2){
 // loadDettesRef remplacé par chargement parallèle dans loadData
 
 const BUDGETS=[
-  {cat:'21.Loyer',label:'Loyer',budget:877,icon:'🏠'},
+  {cat:'21.Loyer',label:'Loyer + parking',budget:955,icon:'🏠'},
   {cat:'23.Courant+Eau',label:'HydroQ',budget:65,icon:'💡'},
-  {cat:'22.Assurance auto/Hab',label:'Assurance',budget:97,icon:'🛡️'},
-  {cat:'24.Telephone',label:'Téléphone',budget:50,icon:'📱'},
-  {cat:'25.Abonnement',label:'Abonnements',budget:145,icon:'📺'},
+  {cat:'22.Assurance auto/Hab',label:'Assurances',budget:84,icon:'🛡️'},
+  {cat:'24.Telephone',label:'Téléphone',budget:46,icon:'📱'},
+  {cat:'25.Abonnement',label:'Abonnements',budget:65,icon:'📺'},
   {cat:'32.Transport',label:'Transport',budget:200,icon:'🚗'},
   {cat:'31.Alimentation',label:'Alimentation',budget:400,icon:'🍽️'},
   {cat:'33.Santé & Bien-être',label:'Santé',budget:80,icon:'💊'},
   {cat:'34.Événements communautaires',label:'Événements',budget:50,icon:'🎉'},
-  {cat:'36.ADV',label:'Dépenses diverses',budget:150,icon:'🛒'},
+  {cat:'36.ADV',label:'Dépenses diverses',budget:100,icon:'🛒'},
   {cat:'42.Urgence',label:'Urgences familiales',budget:200,icon:'🆘'},
   {cat:'41.TMR',label:'Transferts réguliers',budget:150,icon:'💸'},
-  {cat:'43.Autre OF',label:'Autres obligations',budget:150,icon:'👨‍👩‍👧'},
+  {cat:'43.Autre OF',label:'Autres obligations',budget:100,icon:'👨‍👩‍👧'},
   {cat:'51.Credit Conso',label:'Crédit BMCE',budget:410,icon:'🏦'},
-  {cat:'62.Autre Epargne',label:'Épargne HCBE',budget:200,icon:'💰'},
+  {cat:'62.Autre Epargne',label:'Tontines HCBE',budget:300,icon:'💰'},
 ];
 const BUDGET_TOTAL=BUDGETS.reduce((s,b)=>s+b.budget,0);
 
@@ -534,6 +542,13 @@ function getMK(d){
   return d.substring(0,7);
 }
 
+function normDate(d){
+  if(!d) return '';
+  d=String(d).trim();
+  if(d.includes('/')){const p=d.split('/');if(p.length===3)return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');}
+  return d.substring(0,10);
+}
+
 function parseAmt(v){
   if(!v)return 0;
   return parseFloat(String(v).replace(/[^0-9,.-]/g,'').replace(',','.')) || 0;
@@ -558,7 +573,8 @@ function calc(rows,filter){
     if(!byMkCat[mk]){byMkCat[mk]={};CATS_OUT.forEach(c=>byMkCat[mk][c]=0);}
     if(revByMk[mk]===undefined)revByMk[mk]=0;
     if(depByMk[mk]===undefined)depByMk[mk]=0;
-    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget')){
+    // Entrées : salaires, hors budget, ET retraits de placements (62 + In = argent qui revient)
+    if(r.type==='In'&&(r.cat1==='01.Revenus'||r.cat1==='07.Hors Budget'||r.cat2==='62.Autre Epargne'||r.cat2==='62.CELI')){
       revByMk[mk]+=r.amt;
       if(!filter||mk===filter)totIn+=r.amt;
     }
@@ -622,78 +638,69 @@ function calcSoldeFondsUrgence(rows, upToFilter){
   return Math.max(0, solde);
 }
 
+// ── SOLDE PLACEMENTS (HCBE / Wealthsimple / CELI) ──
+function calcSoldePlacements(rows, upToFilter){
+  let solde = 0;
+  rows.forEach(r => {
+    if(r.cat2 !== '62.Autre Epargne' && r.cat2 !== '62.CELI') return;
+    if(upToFilter && getMK(r.date) > upToFilter) return;
+    if(r.type === 'Out') solde += r.amt;   // versement -> le placement grossit
+    else solde -= r.amt;                   // retrait  -> le placement diminue
+  });
+  return solde;
+}
+
 // ── CALCUL DETTES DYNAMIQUE depuis le Sheets ──
 function calcDettes(rows, filter){
+  // Toutes les lignes de paiement de dette
   const detteRows = rows.filter(r => r.cat1 === '05.Dette' && r.type === 'Out');
 
   const parBenef = {};
+
+  // 1) On initialise TOUTES les dettes déclarées dans le Sheets (source de vérité)
+  const DETTE_CAT2={'Credit Conso BMCE':'51.Credit Conso'};
+  DETTE_ORDRE.forEach(nom => {
+    parBenef[nom] = {nom, cat2:DETTE_CAT2[nom]||'52.Autre Dette', rows:[], totalPaye:0, declaree:true};
+  });
+
+  // 2) On rattache les paiements — uniquement ceux datés APRES la Date_Debut
   detteRows.forEach(r => {
     const nom = normalizeDetteName(r.lib || r.lieu || r.cat2, r.cat2);
-    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:r.cat2, rows:[], totalPaye:0};
+    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:r.cat2, rows:[], totalPaye:0, declaree:false};
     if(r.cat2==='51.Credit Conso') parBenef[nom].cat2='51.Credit Conso';
+    const debut = DETTE_DATES[nom] || '';
+    const dIso = normDate(r.date);
+    if(debut && dIso && dIso < debut) return;   // paiement d'un ancien cycle -> ignoré
     parBenef[nom].rows.push(r);
     parBenef[nom].totalPaye += r.amt;
   });
-
-  const DETTE_CAT2={
-    'Credit Conso BMCE':'51.Credit Conso',
-    'Carte Desjardins':'52.Autre Dette',
-  };
-  Object.keys(DETTE_INITIALS).forEach(nom => {
-    if(!parBenef[nom]) parBenef[nom] = {nom, cat2:DETTE_CAT2[nom]||'52.Autre Dette', rows:[], totalPaye:0};
-  });
-
-  // Mois courant affiché (pour la logique de disparition)
-  const moisAffiche = filter || (MK.length>0 ? MK[MK.length-1] : null);
 
   const result = {};
   Object.values(parBenef).forEach(d => {
     const initial = DETTE_INITIALS[d.nom] || d.totalPaye;
     const payeTout = d.totalPaye;
-
-    // Date du dernier paiement (= mois où la dette a été soldée)
-    const rowsTries = [...d.rows].sort((a,b)=>a.date.localeCompare(b.date));
-    const dernierPaiement = rowsTries.length>0 ? rowsTries[rowsTries.length-1] : null;
-    const mkDernierPaiement = dernierPaiement ? getMK(dernierPaiement.date) : null;
-
     const restant = Math.max(0, initial - payeTout);
-    const soldee = restant <= 0 && payeTout > 0;
 
-    // Logique disparition : si soldée, calculer le mois suivant le dernier paiement
-    let mkDisparition = null;
-    if(soldee && mkDernierPaiement) {
-      const [y, m] = mkDernierPaiement.split('-').map(Number);
-      const nextM = m === 12 ? 1 : m + 1;
-      const nextY = m === 12 ? y + 1 : y;
-      mkDisparition = nextY + '-' + String(nextM).padStart(2,'0');
+    // STATUT : le Sheets fait foi. Sinon calcul automatique.
+    const statutSheet = (DETTE_STATUT[d.nom]||'').toLowerCase();
+    let soldee;
+    if(statutSheet.startsWith('sold') || statutSheet.startsWith('fin') || statutSheet==='ok'){
+      soldee = true;
+    } else if(statutSheet.startsWith('activ') || statutSheet.startsWith('en cours')){
+      soldee = false;   // <- permet de re-declarer une dette (ex: carte re-utilisee)
+    } else {
+      soldee = restant <= 0 && payeTout > 0;
     }
-
-    // Cacher la dette si on affiche un mois >= mois de disparition
-    const cacherDette = soldee && mkDisparition && moisAffiche && moisAffiche >= mkDisparition;
 
     let payeMois = 0;
-    if(filter) {
-      d.rows.forEach(r => { if(getMK(r.date)===filter) payeMois += r.amt; });
-    }
+    if(filter) d.rows.forEach(r => { if(getMK(r.date)===filter) payeMois += r.amt; });
 
-    const txDisplay = filter
-      ? d.rows.filter(r => getMK(r.date)===filter)
-      : d.rows.slice(-5);
-
-    const pct = initial > 0 ? Math.min(100, Math.round(payeTout/initial*100)) : 100;
+    const txDisplay = filter ? d.rows.filter(r => getMK(r.date)===filter) : d.rows.slice(-5);
+    const pct = initial > 0 ? Math.min(100, Math.round(payeTout/initial*100)) : 0;
 
     result[d.nom] = {
-      nom: d.nom,
-      cat2: d.cat2,
-      initial,
-      payeTout,
-      payeMois,
-      restant,
-      pct,
-      soldee,
-      cacherDette,  // true = ne pas afficher dans les cartes actives
-      mkDisparition,
-      mkDernierPaiement,
+      nom: d.nom, cat2: d.cat2, initial, payeTout, payeMois, restant, pct, soldee,
+      declaree: d.declaree,
       txDisplay,
       notes: DETTE_NOTES[d.nom]||'',
       dateDebut: DETTE_DATES[d.nom]||''
@@ -852,96 +859,96 @@ function renderBudget(){
 function renderDettes(){
   const dettes = calcDettes(allRows, detteMonth);
   const lbl = detteMonth ? ML[MK.indexOf(detteMonth)] : 'toute la période';
-  document.getElementById('dette-subtitle').textContent = `Période : ${lbl} · Données depuis Google Sheets`;
+  document.getElementById('dette-subtitle').textContent =
+    `Période : ${lbl} · Source : onglet « Dettes » de ton Google Sheets`;
 
-  // KPIs
-  const totalRestant = Object.values(dettes).filter(d=>!d.nom.includes('BMCE')||true).reduce((s,d)=>s+d.restant,0);
-  const totalPaye = Object.values(dettes).reduce((s,d)=>s+d.payeTout,0);
-  const totalInitial = Object.values(dettes).reduce((s,d)=>s+d.initial,0);
-  const payeMoisTotal = Object.values(dettes).reduce((s,d)=>s+d.payeMois,0);
-  const nbSoldees = Object.values(dettes).filter(d=>d.soldee).length;
+  const toutes  = Object.values(dettes);
+  const actives = toutes.filter(d=>!d.soldee).sort((a,b)=>b.restant-a.restant);
+  const soldees = toutes.filter(d=>d.soldee).sort((a,b)=>b.initial-a.initial);
+
+  const totalRestant  = actives.reduce((s,d)=>s+d.restant,0);
+  const payeMoisTotal = toutes.reduce((s,d)=>s+d.payeMois,0);
+  const totalPayeAct  = actives.reduce((s,d)=>s+d.payeTout,0);
+  const totalInitAct  = actives.reduce((s,d)=>s+d.initial,0);
+  const pctGlobal = totalInitAct>0 ? Math.round(totalPayeAct/totalInitAct*100) : 0;
 
   document.getElementById('dette-kpis').innerHTML=`
-    <div class="mcard"><div class="mlabel">Total restant</div><div class="mval r">${fmt(totalRestant)}</div><div class="msub">toutes dettes</div></div>
-    <div class="mcard"><div class="mlabel">Total remboursé</div><div class="mval g">${fmt(totalPaye)}</div><div class="msub">depuis le début</div></div>
-    <div class="mcard"><div class="mlabel">Payé ce mois</div><div class="mval b">${fmt(detteMonth?payeMoisTotal:0)}</div><div class="msub">${lbl}</div></div>
-    <div class="mcard"><div class="mlabel">Dettes soldées</div><div class="mval p">${nbSoldees} / ${Object.keys(dettes).length}</div><div class="msub">sur le total</div></div>`;
+    <div class="mcard"><div class="mlabel">Reste à rembourser</div><div class="mval r">${fmt(totalRestant)}</div><div class="msub">${actives.length} dette(s) active(s)</div></div>
+    <div class="mcard"><div class="mlabel">Déjà remboursé</div><div class="mval g">${fmt(totalPayeAct)}</div><div class="msub">sur les dettes actives</div></div>
+    <div class="mcard"><div class="mlabel">Payé ce mois</div><div class="mval b">${fmt(payeMoisTotal)}</div><div class="msub">${lbl}</div></div>
+    <div class="mcard"><div class="mlabel">Progression globale</div><div class="mval p">${pctGlobal}%</div><div class="msub">${soldees.length} dette(s) soldée(s)</div></div>`;
 
-  // Cartes — on sépare actives et soldées/cachées
-  let html='';
-  const allDettes = Object.values(dettes).sort((a,b)=>b.restant-a.restant);
-  const dettesActives = allDettes.filter(d=>!d.cacherDette);
-  const dettesSoldees = allDettes.filter(d=>d.cacherDette);
+  // ── Bandeau mode d'emploi ──
+  let html = `<div style="grid-column:1/-1;background:#F5F4FF;border:1px solid #D0CEEE;border-radius:10px;padding:10px 14px;margin-bottom:4px;font-size:11px;color:#5F5E5A;line-height:1.6">
+    <strong style="color:#2D3250">Comment gérer tes dettes</strong><br>
+    Ajoute une ligne dans l'onglet <em>Dettes</em> : <code>Nom · Montant_Initial · Date_Debut · Notes · Statut</code>.<br>
+    <strong>Statut</strong> = <em>Active</em> (en cours) ou <em>Soldée</em> (terminée, passe en bas de page).<br>
+    <strong>Date_Debut</strong> : seuls les paiements postérieurs à cette date sont comptés — c'est ce qui permet de re-déclarer une dette déjà soldée (ex : carte de crédit re-utilisée).
+  </div>`;
 
-  // Message si des dettes ont disparu
-  if(dettesSoldees.length>0){
-    html+=`<div style="background:#EAF3DE;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#3B6D11;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">✅</span>
-      <span><strong>${dettesSoldees.map(d=>DETTE_DISPLAY_NAMES[d.nom]||d.nom).join(', ')}</strong> — soldée(s) et retirée(s) de la liste active.</span>
-    </div>`;
+  if(actives.length===0){
+    html += `<div style="grid-column:1/-1;background:#EAF3DE;border-radius:12px;padding:20px;text-align:center;color:#3B6D11">
+      <div style="font-size:32px">🎉</div><div style="font-weight:700;margin-top:6px">Aucune dette active</div></div>`;
   }
 
-  const sorted = dettesActives;
-  sorted.forEach(d=>{
-    const isBMCE = d.nom.includes('BMCE')||d.cat2==='51.Credit Conso';
-    const cardClass = d.soldee?'dette-card soldee':isBMCE?'dette-card urgente':'dette-card';
-    const badge = d.soldee?'<span class="badge badge-soldee">✅ Soldée</span>':isBMCE?'<span class="badge badge-urgente">🏦 Crédit</span>':'<span class="badge badge-normal">👤 Personnel</span>';
-    const barColor = d.soldee?'#1D9E75':isBMCE?'#534AB7':'#D85A30';
+  actives.forEach(d=>{
+    const isCredit = d.cat2==='51.Credit Conso';
+    const badge = isCredit ? '<span class="badge badge-urgente">🏦 Crédit</span>'
+                           : '<span class="badge badge-normal">👤 Personnel</span>';
+    const barColor = isCredit ? '#534AB7' : '#D85A30';
+    const alerte = !d.declaree
+      ? `<div style="font-size:10px;color:#854F0B;background:#FAEEDA;padding:4px 8px;border-radius:6px;margin-bottom:8px">⚠️ Pas déclarée dans l'onglet Dettes — ajoute-la pour suivre le montant initial</div>` : '';
 
-    // Transactions à afficher
     const txHtml = d.txDisplay.length > 0
-      ? `<div class="dette-tx">
-          <div class="dette-tx-title">${detteMonth?'Paiements ce mois':'5 derniers paiements'}</div>
-          ${d.txDisplay.map(r=>`<div class="dette-tx-row"><span style="color:#888780">${r.date}</span><span style="font-weight:600;color:#A32D2D">−${fmt(r.amt)}</span></div>`).join('')}
-        </div>`
-      : detteMonth ? `<div class="dette-tx"><div style="font-size:11px;color:#B4B2A9;padding:6px 0">Aucun paiement ce mois</div></div>` : '';
+      ? `<div class="dette-tx"><div class="dette-tx-title">${detteMonth?'Paiements ce mois':'5 derniers paiements'}</div>
+          ${d.txDisplay.map(r=>`<div class="dette-tx-row"><span style="color:#888780">${r.date}</span><span style="font-weight:600;color:#A32D2D">−${fmt(r.amt)}</span></div>`).join('')}</div>`
+      : `<div class="dette-tx"><div style="font-size:11px;color:#B4B2A9;padding:6px 0">Aucun paiement ${detteMonth?'ce mois':'enregistré'}</div></div>`;
 
-    html+=`<div class="${cardClass}">
+    html+=`<div class="dette-card ${isCredit?'urgente':''}">
       <div class="dette-header">
-        <div class="dette-name">${isBMCE?'🏦':'👤'} ${DETTE_DISPLAY_NAMES[d.nom]||d.nom}</div>
-        ${badge}
+        <div class="dette-name">${isCredit?'🏦':'👤'} ${DETTE_DISPLAY_NAMES[d.nom]||d.nom}</div>${badge}
       </div>
-      <div class="dette-montant-restant" style="color:${d.soldee?'#3B6D11':'#A32D2D'}">${d.soldee?'Soldée ✅':fmt(d.restant)}</div>
-      <div style="font-size:12px;color:#888780;margin-bottom:6px">${d.soldee?'Remboursement complet ✅':'restant à rembourser'}</div>
+      <div class="dette-montant-restant" style="color:#A32D2D">${fmt(d.restant)}</div>
+      <div style="font-size:12px;color:#888780;margin-bottom:6px">restant à rembourser</div>
+      ${alerte}
       ${d.notes?`<div style="font-size:11px;color:#534AB7;margin-bottom:8px;background:#F5F4FF;padding:4px 8px;border-radius:6px">📝 ${d.notes}</div>`:''}
-      ${d.dateDebut?`<div style="font-size:11px;color:#888780;margin-bottom:8px">📅 Depuis : ${d.dateDebut}</div>`:''}
+      ${d.dateDebut?`<div style="font-size:11px;color:#888780;margin-bottom:8px">📅 Depuis le ${d.dateDebut}</div>`:''}
       <div class="dette-stats">
-        <div class="dette-stat-item">
-          <div class="dette-stat-val" style="color:#534AB7">${fmt(d.initial)}</div>
-          <div class="dette-stat-lbl">Montant initial</div>
-        </div>
-        <div class="dette-stat-item">
-          <div class="dette-stat-val" style="color:#3B6D11">${fmt(d.payeTout)}</div>
-          <div class="dette-stat-lbl">Total remboursé</div>
-        </div>
-        <div class="dette-stat-item">
-          <div class="dette-stat-val" style="color:#A32D2D">${fmt(d.restant)}</div>
-          <div class="dette-stat-lbl">Restant</div>
-        </div>
+        <div class="dette-stat-item"><div class="dette-stat-val" style="color:#534AB7">${fmt(d.initial)}</div><div class="dette-stat-lbl">Montant initial</div></div>
+        <div class="dette-stat-item"><div class="dette-stat-val" style="color:#3B6D11">${fmt(d.payeTout)}</div><div class="dette-stat-lbl">Remboursé</div></div>
+        <div class="dette-stat-item"><div class="dette-stat-val" style="color:#A32D2D">${fmt(d.restant)}</div><div class="dette-stat-lbl">Restant</div></div>
       </div>
       <div class="dette-bar-wrap">
         <div class="dette-bar-bg"><div class="dette-bar-fill" style="width:${d.pct}%;background:${barColor}"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#888780;margin-top:4px">
-          <span>${d.pct}% remboursé</span>
-          <span>${100-d.pct}% restant</span>
+          <span>${d.pct}% remboursé</span><span>${100-d.pct}% restant</span>
         </div>
       </div>
       ${txHtml}
     </div>`;
   });
+
+  // ── Dettes soldées : repliées en bas ──
+  if(soldees.length>0){
+    html+=`<div style="grid-column:1/-1;margin-top:6px">
+      <div style="font-size:12px;font-weight:600;color:#3B6D11;margin-bottom:8px">✅ Dettes soldées (${soldees.length})</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${soldees.map(d=>`<span style="background:#EAF3DE;color:#3B6D11;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600">${DETTE_DISPLAY_NAMES[d.nom]||d.nom} · ${fmt(d.initial)}</span>`).join('')}
+      </div></div>`;
+  }
+
   document.getElementById('dette-grid').innerHTML=html;
 
-  // Tableau récap
+  // ── Tableau récap : actives + soldées ──
   let rhtml='';
-  sorted.forEach(d=>{
-    const barW=Math.min(100,d.pct);
-    const barColor=d.soldee?'#1D9E75':(d.nom.includes('BMCE')||d.cat2==='51.Credit Conso')?'#534AB7':'#D85A30';
-    rhtml+=`<tr>
+  [...actives, ...soldees].forEach(d=>{
+    const barColor=d.soldee?'#1D9E75':(d.cat2==='51.Credit Conso')?'#534AB7':'#D85A30';
+    rhtml+=`<tr style="${d.soldee?'opacity:.55':''}">
       <td style="font-weight:600">${DETTE_DISPLAY_NAMES[d.nom]||d.nom}</td>
       <td style="text-align:right;color:#534AB7">${fmt(d.initial)}</td>
       <td style="text-align:right;color:#3B6D11">${fmt(d.payeTout)}</td>
-      <td style="text-align:right;color:${d.soldee?'#3B6D11':'#A32D2D'};font-weight:600">${fmt(d.restant)}</td>
-      <td><div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:${barColor}"></div></div><div style="font-size:10px;color:#888780;margin-top:2px">${d.pct}%</div></td>
+      <td style="text-align:right;color:${d.soldee?'#3B6D11':'#A32D2D'};font-weight:600">${d.soldee?'0 $':fmt(d.restant)}</td>
+      <td><div class="bar-bg"><div class="bar-fill" style="width:${d.soldee?100:d.pct}%;background:${barColor}"></div></div><div style="font-size:10px;color:#888780;margin-top:2px">${d.soldee?100:d.pct}%</div></td>
       <td style="text-align:center"><span class="badge ${d.soldee?'badge-soldee':'badge-progress'}">${d.soldee?'✅ Soldée':'En cours'}</span></td>
     </tr>`;
   });
@@ -1357,17 +1364,20 @@ function loadData(){
     download:true, header:true, skipEmptyLines:true,
     complete:function(results){
       try{
-        DETTE_INITIALS={};
+        DETTE_INITIALS={}; DETTE_NOTES={}; DETTE_DATES={}; DETTE_STATUT={}; DETTE_ORDRE=[];
         results.data.forEach(r=>{
           const k=Object.keys(r);
           const nom=(r[k[0]]||r['Nom']||'').trim();
           const montant=parseAmt(r[k[1]]||r['Montant_Initial']||'0');
           const date=(r[k[2]]||r['Date_Debut']||'').trim();
           const notes=(r[k[3]]||r['Notes']||'').trim();
+          const statut=(r[k[4]]||r['Statut']||'').trim();
           if(nom&&montant>0){
             DETTE_INITIALS[nom]=montant;
             DETTE_NOTES[nom]=notes;
-            DETTE_DATES[nom]=date;
+            DETTE_DATES[nom]=normDate(date);
+            DETTE_STATUT[nom]=statut;
+            DETTE_ORDRE.push(nom);
           }
         });
       }catch(e){ /* valeurs par défaut déjà en place */ }
