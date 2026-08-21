@@ -192,6 +192,9 @@ footer{text-align:center;padding:12px;font-size:11px;color:#B4B2A9}
   <button class="nav-btn" onclick="showTab('dettes',this)" id="nav-dettes">
     <span class="nav-icon">💳</span><span class="nav-label">Dettes</span>
   </button>
+  <button class="nav-btn" onclick="showTab('engagements',this)" id="nav-engagements">
+    <span class="nav-icon">🔗</span><span class="nav-label">Engagements</span>
+  </button>
   <button class="nav-btn" onclick="showTab('plan',this)" id="nav-plan">
     <span class="nav-icon">🗓️</span><span class="nav-label">Plan</span>
   </button>
@@ -283,6 +286,37 @@ footer{text-align:center;padding:12px;font-size:11px;color:#B4B2A9}
       </tr></thead>
       <tbody id="dette-recap"></tbody>
     </table>
+  </div>
+</div>
+</div>
+
+<!-- TAB : ENGAGEMENTS -->
+<div class="tab" id="tab-engagements">
+<div class="container">
+  <div style="margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px">🔗 Mes engagements récurrents</div>
+    <div style="font-size:12px;color:#888780" id="eng-subtitle">—</div>
+  </div>
+  <div class="metrics" id="eng-kpis"></div>
+  <div class="card">
+    <div class="ctitle">📋 Détail — coût mensuel réel</div>
+    <table><thead><tr>
+      <th style="width:26%">Engagement</th>
+      <th style="width:14%;text-align:right">Montant</th>
+      <th style="width:14%">Fréquence</th>
+      <th style="width:16%;text-align:right">Coût / mois</th>
+      <th style="width:15%">Se termine</th>
+      <th style="width:15%;text-align:right">Reste à payer</th>
+    </tr></thead><tbody id="eng-body"></tbody></table>
+  </div>
+  <div class="card">
+    <div class="ctitle">🎯 Calendrier de libération</div>
+    <div style="font-size:12px;color:#888780;margin-bottom:12px">Ces dates sont contractuelles. Elles arrivent sans que tu aies rien à faire.</div>
+    <div id="eng-liberation"></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">⚖️ Équilibre mensuel</div>
+    <div id="eng-equilibre"></div>
   </div>
 </div>
 </div>
@@ -452,6 +486,18 @@ const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qc
 const CSV_DETTES='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=848987459&single=true&output=csv';
 const CSV_SOLDES='https://docs.google.com/spreadsheets/d/e/2PACX-1vSXDSdgGKprz1w1qcUGX-O8k7n0WMQqBJfem9G5fj8xnfiV2VgdcULV2lx6jFja8w/pub?gid=1872633694&single=true&output=csv';
 
+// ── Nouveau classeur de pilotage : 5 onglets, identifiés automatiquement par leurs en-têtes ──
+const CSV_PILOTAGE=[
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYKYyGwLrsgrRjFEe8VZznwFtWjEP36no2SlfR4lh7G1dGDYjP4qx2H5-VpAOyViD_iU5vSmE5Noqk/pub?gid=2000185929&single=true&output=csv',
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYKYyGwLrsgrRjFEe8VZznwFtWjEP36no2SlfR4lh7G1dGDYjP4qx2H5-VpAOyViD_iU5vSmE5Noqk/pub?gid=1346989870&single=true&output=csv',
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYKYyGwLrsgrRjFEe8VZznwFtWjEP36no2SlfR4lh7G1dGDYjP4qx2H5-VpAOyViD_iU5vSmE5Noqk/pub?gid=1892437665&single=true&output=csv',
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYKYyGwLrsgrRjFEe8VZznwFtWjEP36no2SlfR4lh7G1dGDYjP4qx2H5-VpAOyViD_iU5vSmE5Noqk/pub?gid=1132812214&single=true&output=csv',
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYKYyGwLrsgrRjFEe8VZznwFtWjEP36no2SlfR4lh7G1dGDYjP4qx2H5-VpAOyViD_iU5vSmE5Noqk/pub?gid=1700078800&single=true&output=csv'
+];
+
+let ENGAGEMENTS=[];        // {nom,montant,freq,jour,debut,fin,cat,actif,coutMensuel}
+let PARAMS={};             // {Cle:Valeur}
+
 // Montants initiaux chargés dynamiquement depuis Google Sheets (onglet Dettes)
 let DETTE_INITIALS={};
 let SOLDES_MENSUELS={}; // { 'YYYY-MM': montant }
@@ -470,12 +516,12 @@ function normalizeDetteName(lib, cat2){
 
 const BUDGETS=[
   {cat:'21.Loyer',label:'Loyer + parking',budget:955,icon:'🏠'},
-  {cat:'23.Courant+Eau',label:'HydroQ',budget:65,icon:'💡'},
+  {cat:'23.Courant+Eau',label:'HydroQ',budget:58,icon:'💡'},
   {cat:'22.Assurance auto/Hab',label:'Assurances',budget:84,icon:'🛡️'},
-  {cat:'24.Telephone',label:'Téléphone',budget:46,icon:'📱'},
-  {cat:'25.Abonnement',label:'Abonnements',budget:65,icon:'📺'},
-  {cat:'32.Transport',label:'Transport',budget:200,icon:'🚗'},
-  {cat:'31.Alimentation',label:'Alimentation',budget:400,icon:'🍽️'},
+  {cat:'24.Telephone',label:'Téléphone',budget:60,icon:'📱'},
+  {cat:'25.Abonnement',label:'Abonnements',budget:32,icon:'📺'},
+  {cat:'32.Transport',label:'Transport',budget:217,icon:'🚗'},
+  {cat:'31.Alimentation',label:'Alimentation',budget:200,icon:'🍽️'},
   {cat:'33.Santé & Bien-être',label:'Santé',budget:80,icon:'💊'},
   {cat:'34.Événements communautaires',label:'Événements',budget:50,icon:'🎉'},
   {cat:'36.ADV',label:'Dépenses diverses',budget:100,icon:'🛒'},
@@ -955,6 +1001,131 @@ function renderDettes(){
   document.getElementById('dette-recap').innerHTML=rhtml;
 }
 
+
+// ══════════════════════════════════════════════
+// ENGAGEMENTS RÉCURRENTS
+// ══════════════════════════════════════════════
+const CAT_ENG_COLORS={'Logement':'#534AB7','Tontine':'#1D9E75','Maroc':'#A32D2D','Famille':'#D85A30',
+  'Employeur':'#BA7517','Assurance':'#185FA5','Factures':'#378ADD','Abonnement':'#8B5CF6','Autre':'#888780'};
+
+function moisEntre(dIso){
+  if(!dIso) return null;
+  const f=new Date(dIso+'T00:00:00'), n=new Date();
+  if(isNaN(f)) return null;
+  return Math.max(0, (f.getFullYear()-n.getFullYear())*12 + (f.getMonth()-n.getMonth()) + (f.getDate()>=n.getDate()?0:-1) + 1);
+}
+
+function renderEngagements(){
+  const actifs = ENGAGEMENTS.filter(e=>e.actif);
+  const totalMensuel = actifs.reduce((s,e)=>s+e.coutMensuel,0);
+
+  const salaire   = pNum('Salaire_net_par_paie',1300);
+  const revenu    = salaire*26/12;
+  const alim      = pNum('Cible_alimentation',300);
+  const essence   = pNum('Cible_essence',217);
+  const variables = alim+essence;
+  const solde     = revenu - totalMensuel - variables;
+
+  const parCat={};
+  actifs.forEach(e=>{ parCat[e.cat]=(parCat[e.cat]||0)+e.coutMensuel; });
+
+  document.getElementById('eng-subtitle').textContent =
+    `${actifs.length} engagement(s) actif(s) · salaire de référence ${fmt(salaire)} par paie (26 paies/an)`;
+
+  document.getElementById('eng-kpis').innerHTML=`
+    <div class="mcard"><div class="mlabel">Revenu mensuel</div><div class="mval g">${fmt(revenu)}</div><div class="msub">${fmt(salaire)} × 26 ÷ 12</div></div>
+    <div class="mcard"><div class="mlabel">Engagements fixes</div><div class="mval r">${fmt(totalMensuel)}</div><div class="msub">${Math.round(totalMensuel/revenu*100)}% du revenu</div></div>
+    <div class="mcard"><div class="mlabel">Alimentation + essence</div><div class="mval p">${fmt(variables)}</div><div class="msub">cibles fixées</div></div>
+    <div class="mcard"><div class="mlabel">Solde mensuel</div><div class="mval ${solde>=0?'g':'r'}">${fmt(solde)}</div><div class="msub">${solde>=0?'excédent':'déficit structurel'}</div></div>`;
+
+  // Tableau détaillé
+  const tries=[...actifs].sort((a,b)=>b.coutMensuel-a.coutMensuel);
+  const inactifs=ENGAGEMENTS.filter(e=>!e.actif);
+  let h='';
+  tries.forEach(e=>{
+    const col=CAT_ENG_COLORS[e.cat]||'#888780';
+    const m=moisEntre(e.fin);
+    const reste = e.fin ? (m!==null? fmt(m*e.coutMensuel) : '—') : '<span style="color:#B4B2A9">sans terme</span>';
+    const finTxt = e.fin ? `${e.fin} <span style="color:#888780;font-size:10px">(${m} mois)</span>` : '<span style="color:#B4B2A9">—</span>';
+    const freqTxt = e.freq.startsWith('quinz')?'aux 2 semaines':e.freq.startsWith('hebd')?'par semaine':e.freq.startsWith('ann')?'par an':'par mois';
+    const alerte = e.freq.startsWith('quinz') ? ` <span title="26 versements par an, pas 24" style="color:#854F0B;font-size:10px">×26/an</span>` : '';
+    h+=`<tr>
+      <td><span class="pill" style="background:${col}22;color:${col}">${e.cat}</span> <span style="font-weight:600">${e.nom}</span></td>
+      <td style="text-align:right">${fmt(e.montant)}</td>
+      <td style="font-size:11px;color:#5F5E5A">${freqTxt}${alerte}</td>
+      <td style="text-align:right;font-weight:700;color:#A32D2D">${fmt(e.coutMensuel)}</td>
+      <td style="font-size:11px">${finTxt}</td>
+      <td style="text-align:right;font-size:11px">${reste}</td>
+    </tr>`;
+  });
+  h+=`<tr style="background:#F5F4FF;font-weight:700">
+      <td>TOTAL MENSUEL</td><td></td><td></td>
+      <td style="text-align:right;color:#A32D2D">${fmt(totalMensuel)}</td><td></td><td></td></tr>`;
+  Object.entries(parCat).sort((a,b)=>b[1]-a[1]).forEach(([cat,v])=>{
+    const col=CAT_ENG_COLORS[cat]||'#888780';
+    h+=`<tr style="font-size:11px;opacity:.85"><td style="padding-left:20px;color:#888780">dont ${cat}</td><td></td><td></td>
+        <td style="text-align:right;color:${col};font-weight:600">${fmt(v)}</td>
+        <td colspan="2" style="color:#888780">${Math.round(v/revenu*100)}% du revenu</td></tr>`;
+  });
+  if(inactifs.length){
+    h+=`<tr><td colspan="6" style="padding-top:14px;font-size:11px;color:#3B6D11">
+        ✅ Terminés ou arrêtés : ${inactifs.map(e=>e.nom).join(' · ')}</td></tr>`;
+  }
+  document.getElementById('eng-body').innerHTML=h||'<tr><td colspan="6" style="text-align:center;color:#B4B2A9;padding:1rem">Onglet Engagements vide ou illisible</td></tr>';
+
+  // ── Calendrier de libération ──
+  const finis = actifs.filter(e=>e.fin).sort((a,b)=>a.fin.localeCompare(b.fin));
+  let cum=0, lh='';
+  if(!finis.length){
+    lh='<div style="color:#B4B2A9;font-size:13px">Aucune date de fin renseignée dans l\'onglet Engagements.</div>';
+  } else {
+    finis.forEach(e=>{
+      cum+=e.coutMensuel;
+      const m=moisEntre(e.fin);
+      const soldeApres = solde + cum;
+      const pct=Math.min(100,Math.round(cum/ (finis.reduce((s,x)=>s+x.coutMensuel,0)) *100));
+      lh+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1EFE8">
+        <div style="min-width:92px;font-weight:700;color:#2D3250;font-size:12px">${e.fin}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${e.nom}</div>
+          <div style="font-size:11px;color:#888780">dans ${m} mois · solde mensuel après : <strong style="color:${soldeApres>=0?'#3B6D11':'#A32D2D'}">${fmt(soldeApres)}</strong></div>
+          <div class="bar-bg" style="margin-top:5px"><div class="bar-fill" style="width:${pct}%;background:#1D9E75"></div></div>
+        </div>
+        <div style="text-align:right;min-width:96px">
+          <div style="font-size:15px;font-weight:700;color:#3B6D11">+${fmt(e.coutMensuel)}</div>
+          <div style="font-size:10px;color:#888780">cumul ${fmt(cum)}</div>
+        </div>
+      </div>`;
+    });
+    lh+=`<div style="background:#EAF3DE;border-radius:10px;padding:14px;margin-top:14px;text-align:center">
+      <div style="font-size:11px;color:#3B6D11;text-transform:uppercase;letter-spacing:.05em">Total libéré d'ici ${finis[finis.length-1].fin}</div>
+      <div style="font-size:26px;font-weight:700;color:#3B6D11">+${fmt(cum)} / mois</div>
+    </div>`;
+  }
+  document.getElementById('eng-liberation').innerHTML=lh;
+
+  // ── Équilibre ──
+  const lignes=[
+    ['Revenu mensuel', revenu, '#3B6D11'],
+    ['Engagements fixes', -totalMensuel, '#A32D2D'],
+    ['Alimentation', -alim, '#A32D2D'],
+    ['Essence', -essence, '#A32D2D'],
+  ];
+  let eh='<table>';
+  lignes.forEach(([l,v,col])=>{
+    eh+=`<tr><td style="font-size:12px">${l}</td><td style="text-align:right;font-weight:600;color:${col}">${v>=0?'+':'−'}${fmt(Math.abs(v))}</td></tr>`;
+  });
+  eh+=`<tr style="background:${solde>=0?'#EAF3DE':'#FCEBEB'}"><td style="font-weight:700">SOLDE MENSUEL</td>
+       <td style="text-align:right;font-weight:700;font-size:15px;color:${solde>=0?'#3B6D11':'#A32D2D'}">${fmt(solde)}</td></tr></table>`;
+  if(solde<0){
+    eh+=`<div style="margin-top:12px;font-size:12px;color:#5F5E5A;line-height:1.6;background:#FFFBF0;border-left:4px solid #EF9F27;padding:10px 14px;border-radius:8px">
+      Il manque <strong>${fmt(-solde)}</strong> chaque mois. Ce n'est pas un problème d'organisation : c'est un écart arithmétique.
+      ${finis.length?`Le premier palier de libération est le <strong>${finis[0].fin}</strong> (+${fmt(finis[0].coutMensuel)}/mois).`:''}
+    </div>`;
+  }
+  document.getElementById('eng-equilibre').innerHTML=eh;
+}
+
 function renderPlan(){
   let html='';
   PLAN.forEach(p=>{
@@ -1041,6 +1212,7 @@ function renderAll(){
   renderCharts(d);
   renderBudget();
   renderDettes();
+  renderEngagements();
   renderPlan();
   renderCalendrier();
   renderDetail(detailMonth);
@@ -1059,24 +1231,22 @@ const MONTH_FR_SHORT = ['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','S
 
 // Événements récurrents fixes (jour du mois, label, type, montant estimé)
 const RECURRENTS = [
-  {jour:1,  label:'Loyer',          type:'fixe',   montant:877,   icon:'🏠'},
-  {jour:1,  label:'Bell',           type:'abo',    montant:51,    icon:'📱'},
-  {jour:1,  label:'Netflix',        type:'abo',    montant:22,    icon:'📺'},
-  {jour:1,  label:'ChatGPT',        type:'abo',    montant:31,    icon:'🤖'},
-  {jour:1,  label:'Econofitness',   type:'abo',    montant:61,    icon:'🏋️'},
-  {jour:1,  label:'Tontine HCBE',   type:'epargne',montant:25,    icon:'💰'},
-  {jour:5,  label:'Assurance',      type:'fixe',   montant:97,    icon:'🛡️'},
-  {jour:6,  label:'HydroQ',         type:'fixe',   montant:65,    icon:'💡'},
-  {jour:10, label:'BMCE (estim.)',   type:'fixe',   montant:410,   icon:'🏦'},
-  {jour:1,  label:'Fonds urgence',  type:'epargne',montant:100,   icon:'🏦'},
-  // Tontines aux 2 semaines (approximatif)
-  {jour:7,  label:'Tontine B1',     type:'epargne',montant:100,   icon:'🎯'},
-  {jour:21, label:'Tontine B1',     type:'epargne',montant:100,   icon:'🎯'},
-  {jour:14, label:'Tontine B3',     type:'epargne',montant:100,   icon:'🎯'},
-  {jour:28, label:'Tontine B3',     type:'epargne',montant:100,   icon:'🎯'},
-  // Salaires approximatifs (aux 2 semaines)
-  {jour:15, label:'Salaire GM (est.)', type:'rentree', montant:1300, icon:'💵'},
-  {jour:30, label:'Salaire GM (est.)', type:'rentree', montant:1300, icon:'💵'},
+  {jour:1,  label:'Loyer + parking', type:'fixe',    montant:955,  icon:'🏠'},
+  {jour:5,  label:'Assurances',      type:'fixe',    montant:83,   icon:'🛡️'},
+  {jour:9,  label:'Hydro-Québec',    type:'fixe',    montant:58,   icon:'💡'},
+  {jour:10, label:'Crédit BMCE',     type:'fixe',    montant:410,  icon:'🏦'},
+  {jour:10, label:'Burkina Faso',    type:'oblig',   montant:100,  icon:'💸'},
+  {jour:18, label:'Bell',            type:'abo',     montant:60,   icon:'📱'},
+  {jour:23, label:'Abonnement',      type:'abo',     montant:32,   icon:'🤖'},
+  // Cotisations HCBE : 3 plans × 100 $ par quinzaine
+  {jour:4,  label:'HCBE B1 + B2',    type:'epargne', montant:200,  icon:'🎯'},
+  {jour:11, label:'HCBE B3',         type:'epargne', montant:100,  icon:'🎯'},
+  {jour:18, label:'HCBE B1 + B2',    type:'epargne', montant:200,  icon:'🎯'},
+  {jour:25, label:'HCBE B3',         type:'epargne', montant:100,  icon:'🎯'},
+  // Paies aux 2 semaines
+  {jour:2,  label:'Paie GM (est.)',  type:'rentree', montant:1300, icon:'💵'},
+  {jour:16, label:'Paie GM (est.)',  type:'rentree', montant:1300, icon:'💵'},
+  {jour:30, label:'Paie GM (est.)',  type:'rentree', montant:1300, icon:'💵'},
 ];
 
 function getEventsForDay(year, month, day){
@@ -1359,37 +1529,107 @@ function loadData(){
     error:function(){ console.warn('Soldes non disponibles'); }
   });
 
-  // Charger dettes en parallèle (optionnel — si rate, valeurs par défaut)
-  Papa.parse(CSV_DETTES+'&t='+Date.now(),{
-    download:true, header:true, skipEmptyLines:true,
-    complete:function(results){
-      try{
-        DETTE_INITIALS={}; DETTE_NOTES={}; DETTE_DATES={}; DETTE_STATUT={}; DETTE_ORDRE=[];
-        results.data.forEach(r=>{
-          const k=Object.keys(r);
-          const nom=(r[k[0]]||r['Nom']||'').trim();
-          const montant=parseAmt(r[k[1]]||r['Montant_Initial']||'0');
-          const date=(r[k[2]]||r['Date_Debut']||'').trim();
-          const notes=(r[k[3]]||r['Notes']||'').trim();
-          const statut=(r[k[4]]||r['Statut']||'').trim();
-          if(nom&&montant>0){
-            DETTE_INITIALS[nom]=montant;
-            DETTE_NOTES[nom]=notes;
-            DETTE_DATES[nom]=normDate(date);
-            DETTE_STATUT[nom]=statut;
-            DETTE_ORDRE.push(nom);
-          }
-        });
-      }catch(e){ /* valeurs par défaut déjà en place */ }
-      dettesOk=true;
-    },
-    error:function(){
-      // Valeurs de secours si l'onglet Dettes n'est pas accessible
-      DETTE_INITIALS={'Credit Conso BMCE':9007,'Carte Desjardins':1999,'Hicham':1680,'Rhofrane':3000,'Joris':485,'Larissa':225,'Charlemagne':200,'Retour Thomas':146,'Victorine':146};
-      dettesOk=true;
-    }
+  // ── Charger le classeur de pilotage : chaque URL est identifiée par ses en-têtes ──
+  ENGAGEMENTS=[]; PARAMS={};
+  let pilotageRestants = CSV_PILOTAGE.length;
+
+  CSV_PILOTAGE.forEach(url=>{
+    Papa.parse(url+'&t='+Date.now(),{
+      download:true, header:true, skipEmptyLines:true,
+      complete:function(res){
+        try{ classerOnglet(res.data); }catch(e){ console.warn('Onglet illisible',e); }
+        if(--pilotageRestants===0){ dettesOk=true; if(bddOk) renderAll(); }
+      },
+      error:function(){ if(--pilotageRestants===0){ dettesOk=true; if(bddOk) renderAll(); } }
+    });
   });
 }
+
+// ── Identification automatique de l'onglet d'après ses colonnes ──
+function classerOnglet(data){
+  if(!data || !data.length) return;
+  // On cherche la vraie ligne d'en-tête (les onglets ont un titre au-dessus)
+  let cols = Object.keys(data[0]).map(k=>String(k).trim());
+  let lignes = data;
+
+  const contient = n => cols.some(k=>k.toLowerCase().replace(/[éè]/g,'e')===n);
+
+  // Si les en-têtes ne sont pas en 1re ligne, on les cherche dans les 8 premières
+  if(!contient('montant_initial') && !contient('frequence') && !contient('cle')){
+    for(let i=0;i<Math.min(8,data.length);i++){
+      const vals = Object.values(data[i]).map(v=>String(v||'').trim());
+      const low  = vals.map(v=>v.toLowerCase().replace(/[éè]/g,'e'));
+      if(low.includes('montant_initial')||low.includes('frequence')||low.includes('cle')){
+        cols = vals;
+        lignes = data.slice(i+1).map(r=>{
+          const o={}; Object.values(r).forEach((v,j)=>{ if(cols[j]) o[cols[j]]=v; }); return o;
+        });
+        break;
+      }
+    }
+  }
+
+  const has = n => cols.some(k=>String(k).toLowerCase().replace(/[éè]/g,'e')===n);
+  const val = (r,noms)=>{ for(const n of noms){ for(const k of Object.keys(r)){
+      if(String(k).toLowerCase().replace(/[éè]/g,'e')===n) return r[k];
+  }} return ''; };
+
+  // ── DETTES ──
+  if(has('montant_initial')){
+    DETTE_INITIALS={}; DETTE_NOTES={}; DETTE_DATES={}; DETTE_STATUT={}; DETTE_ORDRE=[];
+    lignes.forEach(r=>{
+      const nom=String(val(r,['nom'])||'').trim();
+      const mt =parseAmt(val(r,['montant_initial']));
+      if(!nom||!(mt>0)) return;
+      DETTE_INITIALS[nom]=mt;
+      DETTE_DATES[nom]=normDate(String(val(r,['date_debut'])||'').trim());
+      DETTE_NOTES[nom]=String(val(r,['notes'])||'').trim();
+      DETTE_STATUT[nom]=String(val(r,['statut'])||'').trim();
+      DETTE_ORDRE.push(nom);
+    });
+    console.log('Dettes chargées:',DETTE_ORDRE.length);
+    return;
+  }
+
+  // ── ENGAGEMENTS ──
+  if(has('frequence')){
+    ENGAGEMENTS=[];
+    lignes.forEach(r=>{
+      const nom=String(val(r,['nom'])||'').trim();
+      const mt =parseAmt(val(r,['montant']));
+      if(!nom||!(mt>0)) return;
+      const freq=String(val(r,['frequence'])||'Mensuel').trim().toLowerCase();
+      const actif=String(val(r,['actif'])||'Oui').trim().toLowerCase().startsWith('o');
+      let cm=mt;
+      if(freq.startsWith('quinz')) cm=mt*26/12;
+      else if(freq.startsWith('hebd')) cm=mt*52/12;
+      else if(freq.startsWith('ann')) cm=mt/12;
+      ENGAGEMENTS.push({
+        nom, montant:mt, freq, actif, coutMensuel: actif?cm:0,
+        jour: parseInt(val(r,['jour_du_mois']))||null,
+        debut: normDate(String(val(r,['date_debut'])||'').trim()),
+        fin:   normDate(String(val(r,['date_fin'])||'').trim()),
+        cat:   String(val(r,['categorie'])||'Autre').trim()
+      });
+    });
+    console.log('Engagements chargés:',ENGAGEMENTS.length);
+    return;
+  }
+
+  // ── PARAMÈTRES ──
+  if(has('cle')){
+    PARAMS={};
+    lignes.forEach(r=>{
+      const k=String(val(r,['cle'])||'').trim();
+      if(k) PARAMS[k]=String(val(r,['valeur'])||'').trim();
+    });
+    console.log('Paramètres chargés:',Object.keys(PARAMS).length);
+    return;
+  }
+  // Mode d'emploi / Libération : ignorés (calculés par l'app)
+}
+
+function pNum(cle,defaut){ const v=parseAmt(PARAMS[cle]); return v>0?v:defaut; }
 
 loadData();
 </script>
