@@ -325,37 +325,41 @@ footer{text-align:center;padding:12px;font-size:11px;color:#B4B2A9}
 <div class="tab" id="tab-plan">
 <div class="container">
   <div style="margin-bottom:16px">
-    <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px">🗓️ Plan de remboursement — Juin 2026 → Août 2027</div>
-    <div style="font-size:12px;color:#888780">Revenu moyen ~2 700 $/mois · Charges fixes ~1 200 $ · Disponible ~1 500 $/mois</div>
+    <div style="font-size:15px;font-weight:600;color:#2D3250;margin-bottom:4px" id="plan-titre">🗓️ Plan de sortie</div>
+    <div style="font-size:12px;color:#888780" id="plan-subtitle">Calcul en cours…</div>
   </div>
-  <div class="metrics" style="margin-bottom:20px">
-    <div class="mcard"><div class="mlabel">Total dettes mai 26</div><div class="mval r">~9 385 $</div><div class="msub">toutes dettes</div></div>
-    <div class="mcard"><div class="mlabel">Retour impôt fédéral</div><div class="mval b">3 100 $</div><div class="msub">prévu juin 2026</div></div>
-    <div class="mcard"><div class="mlabel">Tontines sept. 26</div><div class="mval g">5 700 $</div><div class="msub">B3: 2 300 $ + B1: 3 400 $</div></div>
-    <div class="mcard"><div class="mlabel">Fin de toutes dettes</div><div class="mval p" style="font-size:16px">Août 2027</div><div class="msub">BMCE dernière échéance</div></div>
-  </div>
+  <div class="metrics" style="margin-bottom:20px" id="plan-kpis"></div>
+  <div id="plan-alerte"></div>
   <div class="card">
-    <div class="ctitle">📅 Plan mois par mois</div>
+    <div class="ctitle">📅 Projection mois par mois</div>
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-    <table class="plan-table" style="min-width:600px">
+    <table class="plan-table" style="min-width:760px">
       <thead><tr>
-        <th style="width:10%;min-width:90px">Mois</th>
-        <th style="width:32%">Événements & actions</th>
-        <th style="width:28%">Impact sur les dettes</th>
-        <th style="width:15%;text-align:right">Entrées except.</th>
-        <th style="width:15%;text-align:right">Dettes restantes</th>
+        <th style="width:9%;min-width:82px">Mois</th>
+        <th style="width:5%;text-align:center">Paies</th>
+        <th style="width:28%">Événements</th>
+        <th style="width:11%;text-align:right">Entrées</th>
+        <th style="width:11%;text-align:right">Charges</th>
+        <th style="width:11%;text-align:right">Solde</th>
+        <th style="width:12%;text-align:right">Trésorerie</th>
+        <th style="width:13%;text-align:right">Dettes restantes</th>
       </tr></thead>
       <tbody id="plan-body"></tbody>
     </table>
     </div>
   </div>
+  <div class="card">
+    <div class="ctitle">💳 Dettes — échéancier projeté</div>
+    <div id="plan-dettes"></div>
+  </div>
   <div class="card" style="padding:14px 20px">
     <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px">
-      <span class="plan-evt evt-rentree">💰 Rentrée d'argent</span>
-      <span class="plan-evt evt-paiement">💸 Paiement BMCE</span>
+      <span class="plan-evt evt-rentree">🗓️ Mois à 3 paies</span>
+      <span class="plan-evt evt-tontine">🏁 Engagement terminé</span>
       <span class="plan-evt evt-dette">✅ Dette soldée</span>
-      <span class="plan-evt evt-tontine">🎯 Tontine reçue</span>
+      <span class="plan-evt evt-paiement">💸 Grosse échéance</span>
     </div>
+    <div style="font-size:11px;color:#888780;margin-top:12px;line-height:1.7" id="plan-methode"></div>
   </div>
 </div>
 </div>
@@ -532,39 +536,6 @@ const BUDGETS=[
   {cat:'62.Autre Epargne',label:'Tontines HCBE',budget:300,icon:'💰'},
 ];
 const BUDGET_TOTAL=BUDGETS.reduce((s,b)=>s+b.budget,0);
-
-const PLAN=[
-  {mois:'Juin 2026',classe:'highlight-row',
-   evenements:['💰 Retour impôt fédéral : +3 100 $','💸 BMCE : −410 $'],
-   dettes:['✅ Carte Desjardins soldée (−1 999 $)','✅ Charlemagne soldé (−200 $)','💰 Coussin : +500 $','📋 Résidence permanente : ~400 $'],
-   entrees:3100,solde:7342},
-  {mois:'Juil 2026',classe:'',
-   evenements:['💸 BMCE : −410 $','⏳ Attente tontines'],
-   dettes:['Hicham : 1 680 $ restant','Rhofrane : 3 000 $ restant','Joris : 485 $','Larissa : 225 $'],
-   entrees:0,solde:6932},
-  {mois:'Août 2026',classe:'highlight-row',
-   evenements:['🎯 Tontine B3 reçue : +2 300 $','💸 BMCE : −410 $'],
-   dettes:['✅ Hicham soldé (−1 680 $)','Rhofrane : 3 000 $ restant','Reste tontine ~620 $'],
-   entrees:2300,solde:5252},
-  {mois:'Sept 2026',classe:'liberation-row',
-   evenements:['🎯 Tontine B1 reçue : +3 400 $','💸 BMCE : −410 $','🏆 Mois de libération !'],
-   dettes:['✅ Rhofrane soldée (−3 000 $)','✅ Joris soldé (−485 $)','✅ Larissa quasi soldée','Reste: ~90 $ Larissa'],
-   entrees:3400,solde:1762},
-  {mois:'Oct 2026',classe:'',evenements:['💸 BMCE : −410 $','✅ Larissa soldée (−90 $)'],dettes:['BMCE continue — 10 échéances'],entrees:0,solde:1352},
-  {mois:'Nov 2026',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 9 échéances'],entrees:0,solde:942},
-  {mois:'Déc 2026',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 8 échéances'],entrees:0,solde:532},
-  {mois:'Jan 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 7 échéances'],entrees:0,solde:410},
-  {mois:'Fév 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 6 échéances'],entrees:0,solde:410},
-  {mois:'Mars 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 5 échéances'],entrees:0,solde:410},
-  {mois:'Avr 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 4 échéances'],entrees:0,solde:410},
-  {mois:'Mai 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 3 échéances'],entrees:0,solde:410},
-  {mois:'Juin 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — 2 échéances'],entrees:0,solde:410},
-  {mois:'Juil 2027',classe:'',evenements:['💸 BMCE : −410 $'],dettes:['BMCE — dernière !'],entrees:0,solde:410},
-  {mois:'Août 2027',classe:'liberation-row',
-   evenements:['🏆 BMCE : DERNIÈRE ÉCHÉANCE !','🎉 ZÉRO DETTE !','🚀 +410 $/mois libérés !'],
-   dettes:['✅ BMCE soldé définitivement','🎉 Liberté financière !'],
-   entrees:0,solde:0},
-];
 
 const CAT1_LABELS={'01.Revenus':'Revenus','02.Dépenses fixes':'Dép. fixes','03.Dépenses Variables':'Dép. variables','04.Obligation Familial':'Oblig. familiales','05.Dette':'Dettes','06.Epargne':'Épargne','07.Hors Budget':'Hors budget','08.Installation':'Installation'};
 const CAT2_LABELS={'11.Salaire Principal':'Salaire','21.Loyer':'Loyer','22.Assurance auto/Hab':'Assurance','23.Courant+Eau':'HydroQ','24.Telephone':'Téléphone','25.Abonnement':'Abonnements','31.Alimentation':'Alimentation','32.Transport':'Transport','33.Santé & Bien-être':'Santé','34.Événements communautaires':'Événements','35.Travail et Formation':'Travail/Formation','36.ADV':'ADV (divers)','41.TMR':'TMR','42.Urgence':'Urgence famille','43.Autre OF':'Autre OF','51.Credit Conso':'Crédit conso','52.Autre Dette':'Autre dette',"61.Fonds d'urgence":'Fonds urgence','62.Autre Epargne':'Épargne HCBE','71.Entrée Exceptionnelle':'Entrée except.',"81.Frais d'installation":'Frais install.'};
@@ -1126,26 +1097,292 @@ function renderEngagements(){
   document.getElementById('eng-equilibre').innerHTML=eh;
 }
 
+// ══════════ ONGLET PLAN — projection calculée depuis Dettes + Engagements ══════════
+// Aucune donnée en dur : tout vient du classeur de pilotage et de la BDD historique.
+
+const PLAN_ALIAS={'credit bmce':'credit conso bmce'};   // nom engagement -> nom dette
+const PLAN_MAX_MOIS=60;
+
+function pStr(cle,defaut){const v=PARAMS[cle];return(v===undefined||v==='')?defaut:String(v).trim();}
+function pKey(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
+function pDate(s){if(!s)return null;const d=new Date(String(s).substring(0,10)+'T12:00:00');return isNaN(d.getTime())?null:d;}
+function pAdd(d,n){const x=new Date(d.getTime());x.setDate(x.getDate()+n);return x;}
+function pMK(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function pML(k){const p=k.split('-');return MONTH_FR[parseInt(p[1],10)-1]+' '+p[0].substring(2);}
+function pDateFR(d){return d?d.toLocaleDateString('fr-CA',{day:'numeric',month:'short',year:'numeric'}):'—';}
+function pFreqTxt(f){f=f||'';return f.startsWith('quinz')?'aux 2 semaines':f.startsWith('hebd')?'par semaine':f.startsWith('ann')?'par an':'par mois';}
+
+// Échéances réelles d'un engagement entre deux dates — pas de moyenne, des dates.
+function planOccurrences(eng,fromD,toD){
+  const out=[];
+  const debut=pDate(eng.debut), fin=pDate(eng.fin);
+  const stop=(fin&&fin<toD)?fin:toD;
+  const start=(debut&&debut>fromD)?debut:fromD;
+  if(stop<start) return out;
+  const f=(eng.freq||'mensuel');
+  if(f.startsWith('quinz')||f.startsWith('hebd')){
+    const pas=f.startsWith('quinz')?14:7;
+    let d=debut?new Date(debut.getTime()):new Date(start.getTime());
+    let garde=0;
+    while(d<start&&garde++<2000) d=pAdd(d,pas);
+    garde=0;
+    while(d<=stop&&garde++<2000){out.push(new Date(d.getTime()));d=pAdd(d,pas);}
+  } else if(f.startsWith('ann')){
+    const mm=debut?debut.getMonth():0, jj=debut?debut.getDate():1;
+    for(let y=start.getFullYear();y<=stop.getFullYear();y++){
+      const d=new Date(y,mm,jj,12,0,0);
+      if(d>=start&&d<=stop) out.push(d);
+    }
+  } else {
+    const jour=eng.jour||(debut?debut.getDate():1);
+    const mk=(y,m)=>new Date(y,m,Math.min(jour,28),12,0,0);
+    let d=mk(start.getFullYear(),start.getMonth());
+    if(d<start) d=mk(d.getFullYear(),d.getMonth()+1);
+    let garde=0;
+    while(d<=stop&&garde++<PLAN_MAX_MOIS+2){out.push(new Date(d.getTime()));d=mk(d.getFullYear(),d.getMonth()+1);}
+  }
+  return out;
+}
+
+// Dates de paie déduites de l'ancrage, dans les deux sens (toutes les 2 semaines).
+function planPaies(ancrage,fromD,toD){
+  const out=[]; let d=new Date(ancrage.getTime()), garde=0;
+  while(d>fromD&&garde++<2000) d=pAdd(d,-14);
+  garde=0;
+  while(d<fromD&&garde++<2000) d=pAdd(d,14);
+  garde=0;
+  while(d<=toD&&garde++<2000){out.push(new Date(d.getTime()));d=pAdd(d,14);}
+  return out;
+}
+
 function renderPlan(){
-  let html='';
-  PLAN.forEach(p=>{
-    const evts=p.evenements.map(e=>{
-      let cls='evt-tontine';
-      if(e.includes('impôt')||e.includes('Tontine')||e.includes('reçue'))cls='evt-tontine';
-      if(e.includes('BMCE')||e.includes('−410'))cls='evt-paiement';
-      if(e.includes('soldé')||e.includes('soldée')||e.includes('SOLDÉES')||e.includes('ZÉRO')||e.includes('libérés')||e.includes('🏆')||e.includes('🎉')||e.includes('🚀'))cls='evt-rentree';
-      return`<span class="plan-evt ${cls}">${e}</span>`;
-    }).join('');
-    const dettes=p.dettes.map(d=>`<div style="font-size:11px;color:#5F5E5A;margin:2px 0">${d}</div>`).join('');
-    html+=`<tr class="${p.classe}">
-      <td class="plan-mois">${p.mois}</td>
-      <td>${evts}</td>
-      <td>${dettes}</td>
-      <td style="text-align:right;color:${p.entrees>0?'#3B6D11':'#888780'};font-weight:600">${p.entrees>0?'+'+fmt(p.entrees):'—'}</td>
-      <td style="text-align:right;font-weight:700;color:${p.solde===0?'#3B6D11':p.solde<2000?'#854F0B':'#A32D2D'}">${p.solde===0?'🎉 ZÉRO !':fmt(p.solde)}</td>
+  const $=id=>document.getElementById(id);
+  const actifs=ENGAGEMENTS.filter(e=>e.actif);
+
+  if(!actifs.length){
+    $('plan-subtitle').textContent='Onglet Engagements non chargé.';
+    $('plan-kpis').innerHTML=''; $('plan-alerte').innerHTML=''; $('plan-dettes').innerHTML='';
+    $('plan-body').innerHTML='<tr><td colspan="8" style="text-align:center;color:#B4B2A9;padding:1.2rem">Impossible de projeter sans l&#39;onglet Engagements.</td></tr>';
+    return;
+  }
+
+  // ── Paramètres de référence ──
+  const salaire  = pNum('Salaire_net_par_paie',1300);
+  const alim     = pNum('Cible_alimentation',300);
+  const essence  = pNum('Cible_essence',217);
+  const variables= alim+essence;
+  const ancrage  = pDate(pStr('Paie_ancrage','')) || new Date();
+  const revenuMoyen = salaire*26/12;
+  const chargesMoyennes = actifs.reduce((s,e)=>s+e.coutMensuel,0);
+  const soldeMoyen = revenuMoyen - chargesMoyennes - variables;
+
+  // ── Horizon : dernière date de fin connue + 2 mois pour voir l'après ──
+  const today=new Date();
+  const debutProj=new Date(today.getFullYear(),today.getMonth(),today.getDate(),12,0,0);
+  let derniere=null;
+  actifs.forEach(e=>{const f=pDate(e.fin); if(f&&(!derniere||f>derniere)) derniere=f;});
+  if(!derniere) derniere=new Date(today.getFullYear()+1,today.getMonth(),1,12,0,0);
+  const finProj=new Date(derniere.getFullYear(),derniere.getMonth()+3,0,12,0,0);
+
+  // ── Échéances réparties par mois ──
+  const paiesM={}, occM={};
+  planPaies(ancrage,debutProj,finProj).forEach(d=>{const k=pMK(d);(paiesM[k]=paiesM[k]||[]).push(d);});
+  actifs.forEach(e=>{
+    planOccurrences(e,debutProj,finProj).forEach(d=>{
+      const k=pMK(d);(occM[k]=occM[k]||[]).push({eng:e,date:d});
+    });
+  });
+
+  // ── Dettes actives au jour d'aujourd'hui ──
+  const dettes=calcDettes(allRows,null);
+  const actives=Object.values(dettes).filter(d=>!d.soldee && d.restant>0);
+  const restant={}; actives.forEach(d=>{restant[d.nom]=d.restant;});
+  let dettesAujourdhui=0;   // recalcule apres application du restant contractuel
+
+  // ── Quel engagement rembourse quelle dette ──
+  const engDette={}, detteEng={};
+  actifs.forEach(e=>{
+    const k=PLAN_ALIAS[pKey(e.nom)]||pKey(e.nom);
+    const cible=actives.find(d=>pKey(d.nom)===k);
+    if(cible){ engDette[e.nom]=cible.nom; detteEng[cible.nom]=e; }
+  });
+
+  // Dette adossee a un engagement AVEC date de fin : le restant est contractuel
+  // (echeances restantes x montant), pas arithmetique. Les paiements saisis
+  // peuvent etre incomplets — le contrat, lui, fait foi.
+  const resteEch={}, ecartSaisie={};
+  Object.keys(detteEng).forEach(dn=>{
+    const e=detteEng[dn]; if(!e.fin) return;
+    const n=planOccurrences(e,debutProj,pDate(e.fin)).length;
+    resteEch[dn]=n;
+    ecartSaisie[dn]=(restant[dn]||0)-n*e.montant;
+    restant[dn]=n*e.montant;
+  });
+  const restantDepart={...restant};        // photo avant projection — fait foi partout
+  dettesAujourdhui=actives.reduce((s,d)=>s+(restantDepart[d.nom]||0),0);
+
+  // ── Libérations par mois ──
+  const libM={};
+  actifs.forEach(e=>{const f=pDate(e.fin); if(f&&f>=debutProj&&f<=finProj){const k=pMK(f);(libM[k]=libM[k]||[]).push(e);}});
+
+  // ══ Boucle de projection ══
+  let cumul = SOLDES_MENSUELS[pMK(today)] || 0;
+  const soldeProjete={};      // dette -> mois de solde
+  let lignes='', i=0, moisPositif=null, cumulMin=null, moisCumulMin=null;
+  let cur=new Date(debutProj.getFullYear(),debutProj.getMonth(),1,12,0,0);
+
+  while(cur<=finProj && i<PLAN_MAX_MOIS){
+    const k=pMK(cur);
+    const partiel = (i===0 && today.getDate()>1);
+    const joursMois=new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate();
+    const prorata = partiel ? (joursMois-today.getDate()+1)/joursMois : 1;
+
+    const nbP=(paiesM[k]||[]).length;
+    const revenu=nbP*salaire;
+    const list=occM[k]||[];
+    const chargesEng=list.reduce((s,o)=>s+o.eng.montant,0);
+    const chargesVar=variables*prorata;
+    const charges=chargesEng+chargesVar;
+    const solde=revenu-charges;
+    cumul+=solde;
+    if(cumulMin===null||cumul<cumulMin){cumulMin=cumul;moisCumulMin=k;}
+
+    // Remboursements de dettes de ce mois
+    const soldees=[];
+    list.forEach(o=>{
+      const dn=engDette[o.eng.nom]; if(!dn||restant[dn]===undefined) return;
+      const av=restant[dn];
+      if(resteEch[dn]!==undefined){ resteEch[dn]=Math.max(0,resteEch[dn]-1); restant[dn]=resteEch[dn]*o.eng.montant; }
+      else { restant[dn]=Math.max(0,av-o.eng.montant); }
+      if(av>0&&restant[dn]===0){soldees.push(dn);soldeProjete[dn]=k;}
+    });
+    const detteTot=Object.values(restant).reduce((s,v)=>s+v,0);
+
+    // Événements
+    const evts=[];
+    if(partiel) evts.push(['evt-paiement','⏳ reste du mois en cours']);
+    if(nbP===3) evts.push(['evt-rentree','🗓️ 3 paies (+'+fmt(salaire)+')']);
+    (libM[k]||[]).forEach(e=>evts.push(['evt-tontine','🏁 Fin '+e.nom+' → +'+fmt(e.coutMensuel)+'/mois']));
+    soldees.forEach(n=>evts.push(['evt-dette','✅ '+(DETTE_DISPLAY_NAMES[n]||n)+' soldée']));
+    if(detteTot===0&&soldees.length) evts.push(['evt-rentree','🎉 Plus aucune dette']);
+    if(solde>0&&nbP===2&&moisPositif===null&&!partiel){moisPositif=k;evts.push(['evt-rentree','⚖️ Premier mois ordinaire à l&#39;équilibre']);}
+
+    const cls=(libM[k]&&libM[k].length)?'liberation-row':(nbP===3?'highlight-row':'');
+    lignes+=`<tr class="${cls}">
+      <td class="plan-mois">${pML(k)}${partiel?'<div style="font-size:9px;font-weight:400;color:#888780">partiel</div>':''}</td>
+      <td style="text-align:center;font-weight:600;color:${nbP===3?'#3B6D11':'#5F5E5A'}">${nbP}</td>
+      <td>${evts.map(e=>`<span class="plan-evt ${e[0]}">${e[1]}</span>`).join('')||'<span style="color:#B4B2A9;font-size:10px">rien de particulier</span>'}</td>
+      <td style="text-align:right;color:#3B6D11;font-weight:600">${fmt(revenu)}</td>
+      <td style="text-align:right;color:#A32D2D">${fmt(charges)}</td>
+      <td style="text-align:right;font-weight:700;color:${solde>=0?'#3B6D11':'#A32D2D'}">${solde>=0?'+':'−'}${fmt(Math.abs(solde))}</td>
+      <td style="text-align:right;font-weight:600;color:${cumul>=0?'#185FA5':'#A32D2D'}">${cumul>=0?'':'−'}${fmt(Math.abs(cumul))}</td>
+      <td style="text-align:right;font-weight:700;color:${detteTot===0?'#3B6D11':detteTot<2000?'#854F0B':'#A32D2D'}">${detteTot===0?'🎉 0 $':fmt(detteTot)}</td>
+    </tr>`;
+
+    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1,12,0,0); i++;
+  }
+  $('plan-body').innerHTML=lignes;
+
+  // ══ En-tête ══
+  $('plan-titre').textContent='🗓️ Plan de sortie — '+pML(pMK(debutProj))+' → '+pML(pMK(finProj));
+  $('plan-subtitle').textContent=`Projeté à partir des dates réelles du classeur · ${actifs.length} engagements actifs · ${actives.length} dettes actives · salaire ${fmt(salaire)} par paie`;
+
+  // ══ KPI ══
+  const prochaine=actifs.filter(e=>pDate(e.fin)&&pDate(e.fin)>=today).sort((a,b)=>a.fin.localeCompare(b.fin))[0];
+  const finsDette=Object.values(soldeProjete).sort();
+  const derniereDette=finsDette.length?finsDette[finsDette.length-1]:null;
+  const sansEcheancier=actives.filter(d=>!detteEng[d.nom]);
+
+  $('plan-kpis').innerHTML=`
+    <div class="mcard"><div class="mlabel">Dettes restantes</div><div class="mval r">${fmt(dettesAujourdhui)}</div>
+      <div class="msub">${actives.length} dette(s) active(s) aujourd&#39;hui</div></div>
+    <div class="mcard"><div class="mlabel">Solde mensuel moyen</div><div class="mval ${soldeMoyen>=0?'g':'r'}">${soldeMoyen>=0?'+':'−'}${fmt(Math.abs(soldeMoyen))}</div>
+      <div class="msub">${fmt(revenuMoyen)} − ${fmt(chargesMoyennes)} − ${fmt(variables)}</div></div>
+    <div class="mcard"><div class="mlabel">Prochaine libération</div><div class="mval g" style="font-size:16px">${prochaine?pDateFR(pDate(prochaine.fin)):'—'}</div>
+      <div class="msub">${prochaine?prochaine.nom+' · +'+fmt(prochaine.coutMensuel)+'/mois':'aucune date de fin'}</div></div>
+    <div class="mcard"><div class="mlabel">Point bas de trésorerie</div><div class="mval ${cumulMin>=0?'b':'r'}">${cumulMin>=0?'':'−'}${fmt(Math.abs(cumulMin||0))}</div>
+      <div class="msub">${moisCumulMin?pML(moisCumulMin):'—'}${moisPositif?' · positif dès '+pML(moisPositif):''}</div></div>`;
+
+  // ══ Alertes ══
+  let al='';
+  const aCompleter=actives.filter(d=>/complet|a confirmer|à confirmer/i.test(d.notes||''));
+  const pretEmployeur=actifs.find(e=>detteEng[engDette[e.nom]]&&/employeur/i.test(e.cat));
+  if(pretEmployeur){
+    al+=`<div class="card" style="border-left:4px solid #EF9F27;background:#FFFBF0;padding:12px 16px">
+      <div style="font-size:12px;color:#5F5E5A;line-height:1.6">
+      <strong>Hypothèse à trancher.</strong> « ${pretEmployeur.nom} » est compté ici comme une charge de ${fmt(pretEmployeur.coutMensuel)}/mois.
+      Si les ${fmt(pretEmployeur.montant)} sont déjà retenus sur le net de ${fmt(salaire)} par paie, la projection sous-estime le solde de ${fmt(pretEmployeur.coutMensuel)}/mois jusqu&#39;au ${pDateFR(pDate(pretEmployeur.fin))}.
+      Correctif : saisir dans <em>Paramètres</em> le salaire <em>avant</em> prélèvement (${fmt(salaire+pretEmployeur.montant)}).</div></div>`;
+  }
+  if(aCompleter.length){
+    al+=`<div class="card" style="border-left:4px solid #A32D2D;background:#FCEBEB;padding:12px 16px">
+      <div style="font-size:12px;color:#5F5E5A;line-height:1.6">
+      <strong>Montant non fiable.</strong> ${aCompleter.map(d=>d.nom+' — '+d.notes).join(' · ')}.
+      Tant que la valeur n&#39;est pas corrigée dans l&#39;onglet Dettes, la colonne « dettes restantes » est approximative.</div></div>`;
+  }
+  if(sansEcheancier.length){
+    const tot=sansEcheancier.reduce((s,d)=>s+(restantDepart[d.nom]||0),0);
+    al+=`<div class="card" style="border-left:4px solid #534AB7;background:#F5F4FF;padding:12px 16px">
+      <div style="font-size:12px;color:#5F5E5A;line-height:1.6">
+      <strong>${fmt(tot)} sans échéancier.</strong> ${sansEcheancier.length} dette(s) n&#39;ont aucun engagement de remboursement en face : elles restent à plat dans la projection.
+      Elles ne se solderont qu&#39;avec une entrée exceptionnelle ou un nouvel engagement.</div></div>`;
+  }
+  $('plan-alerte').innerHTML=al;
+
+  // ══ Échéancier par dette ══
+  let dh='<table style="width:100%;border-collapse:collapse;font-size:11px">';
+  dh+='<thead><tr><th style="text-align:left;padding:6px 8px;color:#888780;font-size:10px;border-bottom:2px solid #E8E6FA;background:#F5F4FF">Dette</th>'
+    +'<th style="text-align:right;padding:6px 8px;color:#888780;font-size:10px;border-bottom:2px solid #E8E6FA;background:#F5F4FF">Restant</th>'
+    +'<th style="text-align:left;padding:6px 8px;color:#888780;font-size:10px;border-bottom:2px solid #E8E6FA;background:#F5F4FF">Remboursement</th>'
+    +'<th style="text-align:right;padding:6px 8px;color:#888780;font-size:10px;border-bottom:2px solid #E8E6FA;background:#F5F4FF">Solde prévu</th></tr></thead><tbody>';
+  const restantRetenu=restantDepart;
+  const ordre=[...actives].sort((a,b)=>{
+    const ea=detteEng[a.nom],eb=detteEng[b.nom];
+    if(!!ea!==!!eb) return ea?-1:1;
+    return restantRetenu[b.nom]-restantRetenu[a.nom];
+  });
+  ordre.forEach(d=>{
+    const e=detteEng[d.nom];
+    const nom=DETTE_DISPLAY_NAMES[d.nom]||d.nom;
+    const src=e?`<span style="font-weight:600">${fmt(e.montant)}</span> ${pFreqTxt(e.freq)} <span style="color:#888780">· ${e.nom}</span>`
+               :'<span style="color:#A32D2D">⚠️ aucun engagement en face</span>';
+    let fin;
+    const fContrat=e?pDate(e.fin):null;
+    if(fContrat){
+      const ec=ecartSaisie[d.nom];
+      fin=`<span style="color:#3B6D11;font-weight:700">${pDateFR(fContrat)}</span>`
+        +`<div style="font-size:9px;color:#888780">date contractuelle</div>`;
+      if(ec!==undefined&&Math.abs(ec)>50) fin+=`<div style="font-size:9px;color:#854F0B">⚠️ écart de ${fmt(Math.abs(ec))} avec les paiements saisis</div>`;
+    } else if(soldeProjete[d.nom]){
+      fin=`<span style="color:#3B6D11;font-weight:700">${pML(soldeProjete[d.nom])}</span><div style="font-size:9px;color:#888780">projection</div>`;
+    } else if(e){
+      fin='<span style="color:#854F0B">au-delà de l&#39;horizon</span>';
+    } else {
+      fin='<span style="color:#B4B2A9">—</span>';
+    }
+    dh+=`<tr>
+      <td style="padding:7px 8px;border-bottom:1px solid #F1EFE8;font-weight:600">${nom}
+        ${d.notes?`<div style="font-size:10px;color:#888780;font-weight:400">${d.notes}</div>`:''}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #F1EFE8;text-align:right;font-weight:700;color:#A32D2D">${fmt(restantRetenu[d.nom])}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #F1EFE8">${src}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #F1EFE8;text-align:right">${fin}</td>
     </tr>`;
   });
-  document.getElementById('plan-body').innerHTML=html;
+  dh+=`<tr style="background:#F5F4FF;font-weight:700"><td style="padding:8px">TOTAL</td>
+    <td style="padding:8px;text-align:right;color:#A32D2D">${fmt(dettesAujourdhui)}</td>
+    <td colspan="2" style="padding:8px;font-size:10px;color:#888780">${derniereDette?'Dernière dette soldée (projection) : '+pML(derniereDette):'Aucune date de solde dans l&#39;horizon'}</td></tr>`;
+  dh+='</tbody></table>';
+  $('plan-dettes').innerHTML=actives.length?dh:'<div style="color:#B4B2A9;font-size:12px">Aucune dette active.</div>';
+
+  // ══ Méthode ══
+  $('plan-methode').innerHTML=
+    `<strong>Comment ce tableau est calculé.</strong> Chaque échéance est générée à sa date réelle depuis la <em>Date_Debut</em> de l&#39;engagement `
+   +`(pas de 14 jours pour une quinzaine, jour du mois pour un mensuel), jusqu&#39;à la <em>Date_Fin</em>. Les paies suivent le même principe depuis `
+   +`<em>Paie_ancrage</em> (${pDateFR(ancrage)}). C&#39;est pourquoi certains mois affichent 3 paies — et 3 prélèvements de tontine.<br>`
+   +`Les dépenses variables (${fmt(alim)} alimentation + ${fmt(essence)} essence) sont ajoutées chaque mois, au prorata pour le mois en cours. `
+   +`La trésorerie cumulée part de ${fmt(SOLDES_MENSUELS[pMK(today)]||0)} (onglet Soldes) et n&#39;inclut aucune entrée exceptionnelle : impôts, tontines reçues et primes ne sont pas projetés.<br>`
+   +`<strong>Pourquoi le KPI et le tableau diffèrent.</strong> Le solde moyen de ${soldeMoyen>=0?'+':'−'}${fmt(Math.abs(soldeMoyen))} lisse 26 paies sur 12 mois. `
+   +`Dans la réalité un mois à 2 paies et un mois à 3 paies n&#39;ont rien à voir : la moyenne décrit un mois qui n&#39;existe jamais. Le tableau, lui, montre les mois que tu vis.`;
 }
 
 function renderDetail(filter){
@@ -1581,6 +1818,7 @@ function classerOnglet(data){
       const nom=String(val(r,['nom'])||'').trim();
       const mt =parseAmt(val(r,['montant_initial']));
       if(!nom||!(mt>0)) return;
+      if(/^(total|sous.?total|dont)\b/i.test(nom)) return;   // lignes de synthese du Sheets
       DETTE_INITIALS[nom]=mt;
       DETTE_DATES[nom]=normDate(String(val(r,['date_debut'])||'').trim());
       DETTE_NOTES[nom]=String(val(r,['notes'])||'').trim();
@@ -1598,6 +1836,7 @@ function classerOnglet(data){
       const nom=String(val(r,['nom'])||'').trim();
       const mt =parseAmt(val(r,['montant']));
       if(!nom||!(mt>0)) return;
+      if(/^(total|sous.?total|dont)\b/i.test(nom)) return;   // lignes de synthese du Sheets
       const freq=String(val(r,['frequence'])||'Mensuel').trim().toLowerCase();
       const actif=String(val(r,['actif'])||'Oui').trim().toLowerCase().startsWith('o');
       let cm=mt;
